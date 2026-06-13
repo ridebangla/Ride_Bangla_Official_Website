@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import logo from "../assets/ride-bangla-logo.png.asset.json";
 
 function NotFoundComponent() {
   return (
@@ -77,19 +78,39 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Ride Bangla — Ride. Food. Delivery. Courier." },
+      { name: "description", content: "Ride Bangla is a Bangladesh-based technology company building a trusted ecosystem for food delivery, courier, and digital services." },
+      { name: "author", content: "Ride Bangla" },
+      { property: "og:title", content: "Ride Bangla — Ride. Food. Delivery. Courier." },
+      { property: "og:description", content: "Food delivery, courier and future digital services for Bangladesh. Founded in Faridpur." },
+      { property: "og:site_name", content: "Ride Bangla" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      { rel: "icon", type: "image/png", href: logo.url },
+      { rel: "apple-touch-icon", href: logo.url },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Ride Bangla",
+          url: "/",
+          logo: logo.url,
+          address: { "@type": "PostalAddress", addressLocality: "Faridpur", addressCountry: "BD" },
+          sameAs: [
+            "https://facebook.com/ridebangla",
+            "https://www.instagram.com/ride.bangla_",
+            "https://www.youtube.com/@ridebangla-0",
+          ],
+        }),
       },
     ],
   }),
