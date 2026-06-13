@@ -37,11 +37,24 @@ function HomePage() {
           {home?.latest_update_text && (
             <Link
               to="/updates"
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-green/20 bg-brand-green-soft px-4 py-2 text-sm font-medium text-brand-green-dark transition hover:bg-brand-green/10"
+              aria-label="See latest update"
+              className="group mb-6 flex w-full items-center gap-3 rounded-xl border border-brand-green/25 bg-white px-3 py-2.5 shadow-sm ring-1 ring-brand-green/5 transition hover:border-brand-green/40 hover:shadow-md sm:px-4 sm:py-3"
             >
-              <Bell className="h-4 w-4 text-brand-green" />
-              <span className="line-clamp-1">{home.latest_update_text}</span>
-              <ArrowRight className="h-4 w-4" />
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-green text-white shadow-sm">
+                <Bell className="h-4 w-4" />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand-green">
+                  Latest Update
+                </span>
+                <span className="line-clamp-1 text-sm font-medium text-foreground">
+                  {home.latest_update_text}
+                </span>
+              </span>
+              <span className="hidden shrink-0 items-center gap-1 text-xs font-semibold text-brand-green group-hover:underline sm:inline-flex">
+                Read More <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-brand-green sm:hidden" />
             </Link>
           )}
           <div className="grid items-center gap-8 md:grid-cols-2">
