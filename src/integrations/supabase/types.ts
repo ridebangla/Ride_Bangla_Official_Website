@@ -14,16 +14,285 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_status: {
+        Row: {
+          apk_url: string | null
+          app_name: string
+          app_type: string
+          created_at: string
+          description: string
+          id: string
+          play_store_url: string | null
+          sort_order: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          apk_url?: string | null
+          app_name: string
+          app_type: string
+          created_at?: string
+          description: string
+          id?: string
+          play_store_url?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          apk_url?: string | null
+          app_name?: string
+          app_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          play_store_url?: string | null
+          sort_order?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_info: {
+        Row: {
+          address: string | null
+          business_email: string | null
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          phone: string | null
+          support_email: string | null
+          updated_at: string
+          whatsapp: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_email?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          phone?: string | null
+          support_email?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_email?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          phone?: string | null
+          support_email?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean
+          message: string
+          name: string
+          phone: string | null
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean
+          message: string
+          name: string
+          phone?: string | null
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          name?: string
+          phone?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string
+          id?: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      homepage_content: {
+        Row: {
+          hero_headline: string
+          hero_subheadline: string
+          id: string
+          latest_update_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          hero_headline: string
+          hero_subheadline: string
+          id?: string
+          latest_update_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          hero_headline?: string
+          hero_subheadline?: string
+          id?: string
+          latest_update_text?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          bio: string | null
+          created_at: string
+          email: string | null
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          name: string
+          photo_url: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          name: string
+          photo_url?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          name?: string
+          photo_url?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      updates: {
+        Row: {
+          category: string
+          cover_image_url: string | null
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean
+          published_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_published?: boolean
+          published_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          published_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +419,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
