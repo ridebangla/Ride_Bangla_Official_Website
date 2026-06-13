@@ -1,0 +1,14 @@
+{
+  "name": "Ride Bangla",
+  "short_name": "Ride Bangla",
+  "description": "Ride Bangla — Food delivery, courier and digital services for Bangladesh.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [
+    { "src": "/__l5e/assets-v1/257baa22-57dd-446f-942e-c703bb9fea7d/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/__l5e/assets-v1/73566a59-0d94-45d3-9ad5-a23fef830270/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
