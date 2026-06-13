@@ -81,9 +81,7 @@ function HomePage() {
               </div>
             </div>
             <div className="flex justify-center md:justify-end">
-              <div className="rounded-3xl bg-white p-6 shadow-xl ring-1 ring-border">
-                <Logo className="h-48 w-48 object-contain sm:h-60 sm:w-60" />
-              </div>
+              <Logo className="h-48 w-48 object-contain drop-shadow-md sm:h-60 sm:w-60" />
             </div>
           </div>
         </div>

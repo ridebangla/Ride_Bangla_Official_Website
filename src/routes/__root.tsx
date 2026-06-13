@@ -12,6 +12,11 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import logo from "../assets/ride-bangla-logo.png.asset.json";
+import favicon32 from "../assets/favicon-32.png.asset.json";
+import favicon16 from "../assets/favicon-16.png.asset.json";
+import appleTouchIcon from "../assets/apple-touch-icon.png.asset.json";
+import icon192 from "../assets/icon-192.png.asset.json";
+import ogImage from "../assets/og-image.jpg.asset.json";
 
 function NotFoundComponent() {
   return (
@@ -85,15 +90,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Food delivery, courier and future digital services for Bangladesh. Founded in Faridpur." },
       { property: "og:site_name", content: "Ride Bangla" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:image", content: ogImage.url },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Ride Bangla — Food delivery, courier and digital services" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Ride Bangla — Ride. Food. Delivery. Courier." },
+      { name: "twitter:description", content: "Food delivery, courier and future digital services for Bangladesh. Founded in Faridpur." },
+      { name: "twitter:image", content: ogImage.url },
+      { name: "theme-color", content: "#16a34a" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Ride Bangla" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", type: "image/png", href: logo.url },
-      { rel: "apple-touch-icon", href: logo.url },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: favicon32.url },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: favicon16.url },
+      { rel: "apple-touch-icon", sizes: "180x180", href: appleTouchIcon.url },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: icon192.url },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
     scripts: [
       {
