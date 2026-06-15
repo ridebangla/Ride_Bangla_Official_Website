@@ -22,7 +22,13 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   const { data: team } = useQuery({
     queryKey: ["team_members"],
-    queryFn: async () => (await supabase.from("team_members").select("*").order("sort_order")).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("team_members")
+          .select("id, name, title, bio, photo_url, facebook_url, instagram_url, sort_order")
+          .order("sort_order")
+      ).data ?? [],
   });
 
   return (
