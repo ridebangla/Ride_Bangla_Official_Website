@@ -136,11 +136,18 @@ function HomePage() {
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {(updates ?? []).map((u) => (
-            <article key={u.id} className="rounded-xl border border-border bg-card p-5">
-              <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">{u.category}</div>
-              <h3 className="mt-2 text-lg font-semibold">{u.title}</h3>
-              <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{u.description}</p>
-              <time className="mt-3 block text-xs text-muted-foreground">{new Date(u.published_at).toLocaleDateString()}</time>
+            <article key={u.id} className="overflow-hidden rounded-xl border border-border bg-card">
+              {u.media_url && u.media_type === "image" ? (
+                <img src={u.media_url} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
+              ) : (u.cover_image_url ? (
+                <img src={u.cover_image_url} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
+              ) : null)}
+              <div className="p-5">
+                <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">{u.category}</div>
+                <h3 className="mt-2 text-lg font-semibold">{u.title}</h3>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{u.excerpt ?? u.description}</p>
+                <time className="mt-3 block text-xs text-muted-foreground">{new Date(u.published_at).toLocaleDateString()}</time>
+              </div>
             </article>
           ))}
           {updates && updates.length === 0 && <p className="text-sm text-muted-foreground">No updates yet.</p>}

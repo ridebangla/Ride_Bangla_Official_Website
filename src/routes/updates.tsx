@@ -34,11 +34,18 @@ function UpdatesPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {updates.map((u) => (
-              <article key={u.id} className="rounded-xl border border-border bg-card p-5">
-                <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">{u.category}</div>
-                <h2 className="mt-2 text-lg font-semibold">{u.title}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{u.description}</p>
-                <time className="mt-3 block text-xs text-muted-foreground">{new Date(u.published_at).toLocaleDateString()}</time>
+              <article key={u.id} className="overflow-hidden rounded-xl border border-border bg-card">
+                {u.media_url && u.media_type === "video" ? (
+                  <video src={u.media_url} controls className="aspect-video w-full bg-black object-cover" />
+                ) : u.media_url || u.cover_image_url ? (
+                  <img src={u.media_url ?? u.cover_image_url} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
+                ) : null}
+                <div className="p-5">
+                  <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">{u.category}</div>
+                  <h2 className="mt-2 text-lg font-semibold">{u.title}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{u.excerpt ?? u.description}</p>
+                  <time className="mt-3 block text-xs text-muted-foreground">{new Date(u.published_at).toLocaleDateString()}</time>
+                </div>
               </article>
             ))}
           </div>

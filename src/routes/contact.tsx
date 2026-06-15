@@ -95,28 +95,28 @@ function ContactPage() {
               </div>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="grid gap-4 rounded-xl border border-border bg-card p-6">
+            <form onSubmit={onSubmit} className="grid gap-5 rounded-xl border border-border bg-card p-6 shadow-sm">
               <Field label="Source" htmlFor="source">
-                <select id="source" value={values.source} onChange={(e) => setValues((v) => ({ ...v, source: e.target.value as Source }))} className="input">
+                <select id="source" value={values.source} onChange={(e) => setValues((v) => ({ ...v, source: e.target.value as Source }))} className={inputCls}>
                   {SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Name" htmlFor="name" error={errors.name}>
-                  <input id="name" value={values.name} onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))} className="input" maxLength={120} required />
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Name" htmlFor="name" error={errors.name} required>
+                  <input id="name" placeholder="Your full name" value={values.name} onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))} className={inputCls} maxLength={120} required />
                 </Field>
                 <Field label="Phone" htmlFor="phone">
-                  <input id="phone" value={values.phone} onChange={(e) => setValues((v) => ({ ...v, phone: e.target.value }))} className="input" maxLength={40} />
+                  <input id="phone" placeholder="+880 1XXX-XXXXXX" value={values.phone} onChange={(e) => setValues((v) => ({ ...v, phone: e.target.value }))} className={inputCls} maxLength={40} />
                 </Field>
               </div>
-              <Field label="Email" htmlFor="email" error={errors.email}>
-                <input id="email" type="email" value={values.email} onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))} className="input" maxLength={255} required />
+              <Field label="Email" htmlFor="email" error={errors.email} required>
+                <input id="email" type="email" placeholder="you@example.com" value={values.email} onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))} className={inputCls} maxLength={255} required />
               </Field>
               <Field label="Subject" htmlFor="subject">
-                <input id="subject" value={values.subject} onChange={(e) => setValues((v) => ({ ...v, subject: e.target.value }))} className="input" maxLength={200} />
+                <input id="subject" placeholder="How can we help?" value={values.subject} onChange={(e) => setValues((v) => ({ ...v, subject: e.target.value }))} className={inputCls} maxLength={200} />
               </Field>
-              <Field label="Message" htmlFor="message" error={errors.message}>
-                <textarea id="message" value={values.message} onChange={(e) => setValues((v) => ({ ...v, message: e.target.value }))} className="input min-h-32" maxLength={4000} required />
+              <Field label="Message" htmlFor="message" error={errors.message} required>
+                <textarea id="message" placeholder="Write your message here…" value={values.message} onChange={(e) => setValues((v) => ({ ...v, message: e.target.value }))} className={`${inputCls} min-h-32 resize-y`} maxLength={4000} required />
               </Field>
               {submit.isError && <p className="text-sm text-brand-red">Could not send. Please try again.</p>}
               <button type="submit" disabled={submit.isPending} className="inline-flex w-fit items-center gap-2 rounded-lg bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-green-dark disabled:opacity-60">
@@ -126,15 +126,19 @@ function ContactPage() {
           )}
         </div>
       </section>
-      <style>{`.input{width:100%;border-radius:0.5rem;border:1px solid hsl(var(--border));background:hsl(var(--background));padding:0.625rem 0.75rem;font-size:0.875rem;color:hsl(var(--foreground));outline:none}.input:focus{box-shadow:0 0 0 2px hsl(var(--brand-green)/0.25);border-color:hsl(var(--brand-green))}`}</style>
     </SiteLayout>
   );
 }
 
-function Field({ label, htmlFor, error, children }: { label: string; htmlFor: string; error?: string; children: React.ReactNode }) {
+const inputCls =
+  "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 focus:border-brand-green focus:ring-2 focus:ring-brand-green/25";
+
+function Field({ label, htmlFor, error, required, children }: { label: string; htmlFor: string; error?: string; required?: boolean; children: React.ReactNode }) {
   return (
     <label htmlFor={htmlFor} className="flex flex-col gap-1.5 text-sm">
-      <span className="font-medium text-foreground">{label}</span>
+      <span className="font-medium text-foreground">
+        {label}{required && <span className="ml-0.5 text-brand-red">*</span>}
+      </span>
       {children}
       {error && <span className="text-xs text-brand-red">{error}</span>}
     </label>
