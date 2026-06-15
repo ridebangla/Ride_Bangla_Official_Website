@@ -37,8 +37,8 @@ function UpdatesPage() {
               <article key={u.id} className="overflow-hidden rounded-xl border border-border bg-card">
                 {u.media_url && u.media_type === "video" ? (
                   <video src={u.media_url} controls className="aspect-video w-full bg-black object-cover" />
-                ) : u.media_url || u.cover_image_url ? (
-                  <img src={u.media_url ?? u.cover_image_url} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
+                ) : (u.media_url || u.cover_image_url) ? (
+                  <img src={(u.media_url ?? u.cover_image_url) as string} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
                 ) : null}
                 <div className="p-5">
                   <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">{u.category}</div>
