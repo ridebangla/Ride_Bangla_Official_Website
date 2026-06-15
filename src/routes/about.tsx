@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Target, Eye, Heart, User, Mail } from "lucide-react";
+import { Target, Eye, Heart, User } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +22,13 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   const { data: team } = useQuery({
     queryKey: ["team_members"],
-    queryFn: async () => (await supabase.from("team_members").select("*").order("sort_order")).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("team_members")
+          .select("id, name, title, bio, photo_url, facebook_url, instagram_url, sort_order")
+          .order("sort_order")
+      ).data ?? [],
   });
 
   return (
@@ -67,7 +73,6 @@ function AboutPage() {
               <div className="mt-4 flex items-center gap-3">
                 {m.facebook_url && <a aria-label={`${m.name} on Facebook`} href={m.facebook_url} target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-brand-green"><FaFacebook className="h-5 w-5" /></a>}
                 {m.instagram_url && <a aria-label={`${m.name} on Instagram`} href={m.instagram_url} target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-brand-red"><FaInstagram className="h-5 w-5" /></a>}
-                {m.email && <a aria-label={`Email ${m.name}`} href={`mailto:${m.email}`} className="text-muted-foreground hover:text-brand-green"><Mail className="h-5 w-5" /></a>}
               </div>
             </article>
           ))}
