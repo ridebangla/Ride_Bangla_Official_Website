@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Target, Eye, Heart, User, Mail } from "lucide-react";
+import { Target, Eye, Heart, User } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
