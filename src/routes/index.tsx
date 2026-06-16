@@ -10,7 +10,9 @@ import {
   Users,
   Wallet,
   Bike,
+  PlayCircle,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { Logo } from "@/components/site/Logo";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,55 +49,80 @@ type HomeContent = {
   id?: string;
   hero_headline?: string | null;
   hero_subheadline?: string | null;
-  latest_update_text?: string | null;
 };
 
-type UpdateItem = {
+type WebsiteUpdate = {
   id: string;
   title: string;
-  description: string;
+  slug: string | null;
   excerpt: string | null;
+  body: string | null;
   category: string | null;
-  cover_image_url: string | null;
-  media_url: string | null;
   media_type: string | null;
-  is_published: boolean | null;
-  published_at: string;
+  image_url: string | null;
+  video_url: string | null;
+  external_url: string | null;
+  published: boolean | null;
+  published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 };
+
+function getUpdateMediaUrl(update: WebsiteUpdate) {
+  if (update.media_type === "video") return update.video_url;
+  if (update.media_type === "image") return update.image_url;
+  return update.image_url || update.video_url || null;
+}
+
+function getUpdateSummary(update: WebsiteUpdate) {
+  return update.excerpt || update.body || "";
+}
+
+function getUpdateDate(update: WebsiteUpdate) {
+  return update.published_at || update.created_at || update.updated_at || "";
+}
 
 function HomePage() {
   const { data: home } = useQuery({
-    queryKey: ["homepage_content"],
+    queryKey: ["homepage_content", "safe"],
+    retry: false,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("homepage_content")
-        .select("*")
+        .select("id,hero_headline,hero_subheadline")
         .limit(1)
         .maybeSingle();
 
+      if (error) return null;
       return data as HomeContent | null;
     },
   });
 
   const { data: updates } = useQuery({
-    queryKey: ["updates", "home"],
+    queryKey: ["website_updates", "home", "published"],
+    retry: false,
     queryFn: async () => {
-      const { data } = await supabase
-        .from("updates")
-        .select("*")
-        .eq("is_published", true)
+      const { data, error } = await (supabase as any)
+        .from("website_updates")
+        .select(
+          "id,title,slug,excerpt,body,category,media_type,image_url,video_url,external_url,published,published_at,created_at,updated_at"
+        )
+        .eq("published", true)
         .order("published_at", { ascending: false })
         .limit(3);
 
-      return (data ?? []) as UpdateItem[];
+      if (error) throw error;
+      return (data ?? []) as WebsiteUpdate[];
     },
   });
+
+  const latestUpdate = updates?.[0];
 
   return (
     <SiteLayout>
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-green-soft via-background to-background">
-        <div className="mx-auto max-w-6xl px-4 pt-8 pb-12 sm:pt-14 sm:pb-20">
-          {home?.latest_update_text && (
+        <div className="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:pb-20 sm:pt-14">
+          {latestUpdate && (
             <Link
               to="/updates"
               aria-label="See latest update"
@@ -110,7 +137,10 @@ function HomePage() {
                   Latest Update
                 </span>
                 <span className="line-clamp-1 text-sm font-medium text-foreground">
-                  {home.latest_update_text}
+                  {latestUpdate.title}
+                  {getUpdateSummary(latestUpdate)
+                    ? ` — ${getUpdateSummary(latestUpdate)}`
+                    : ""}
                 </span>
               </span>
 
@@ -252,41 +282,53 @@ function HomePage() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {(updates ?? []).map((update) => (
-            <article
-              key={update.id}
-              className="overflow-hidden rounded-xl border border-border bg-card"
-            >
-              {update.media_url && update.media_type === "image" ? (
-                <img
-                  src={update.media_url}
-                  alt={update.title}
-                  loading="lazy"
-                  className="aspect-video w-full object-cover"
-                />
-              ) : update.cover_image_url ? (
-                <img
-                  src={update.cover_image_url}
-                  alt={update.title}
-                  loading="lazy"
-                  className="aspect-video w-full object-cover"
-                />
-              ) : null}
+          {(updates ?? []).map((update) => {
+            const mediaUrl = getUpdateMediaUrl(update);
 
-              <div className="p-5">
-                <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
-                  {update.category ?? "Announcement"}
+            return (
+              <article
+                key={update.id}
+                className="overflow-hidden rounded-xl border border-border bg-card"
+              >
+                {mediaUrl && update.media_type === "video" ? (
+                  <video
+                    src={mediaUrl}
+                    controls
+                    preload="metadata"
+                    className="aspect-video w-full bg-black object-cover"
+                  />
+                ) : mediaUrl ? (
+                  <img
+                    src={mediaUrl}
+                    alt={update.title}
+                    loading="lazy"
+                    className="aspect-video w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-video w-full items-center justify-center bg-brand-green-soft text-brand-green">
+                    <PlayCircle className="h-10 w-10 opacity-60" />
+                  </div>
+                )}
+
+                <div className="p-5">
+                  <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
+                    {update.category || "Announcement"}
+                  </div>
+                  <h3 className="mt-2 text-lg font-semibold">
+                    {update.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                    {getUpdateSummary(update)}
+                  </p>
+                  {getUpdateDate(update) && (
+                    <time className="mt-3 block text-xs text-muted-foreground">
+                      {new Date(getUpdateDate(update)).toLocaleDateString()}
+                    </time>
+                  )}
                 </div>
-                <h3 className="mt-2 text-lg font-semibold">{update.title}</h3>
-                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                  {update.excerpt ?? update.description}
-                </p>
-                <time className="mt-3 block text-xs text-muted-foreground">
-                  {new Date(update.published_at).toLocaleDateString()}
-                </time>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
 
           {updates && updates.length === 0 && (
             <p className="text-sm text-muted-foreground">No updates yet.</p>
@@ -302,7 +344,7 @@ function ServicePreview({
   title,
   desc,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   desc: string;
 }) {
@@ -322,7 +364,7 @@ function AppPreview({
   title,
   sub,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   sub: string;
 }) {
@@ -335,4 +377,4 @@ function AppPreview({
       <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
   );
-          }
+}
