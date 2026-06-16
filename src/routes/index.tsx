@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, ArrowRight, Utensils, Package, Smartphone, Building2, Users, Wallet, Bike } from "lucide-react";
+import {
+  Bell,
+  ArrowRight,
+  Utensils,
+  Package,
+  Smartphone,
+  Building2,
+  Users,
+  Wallet,
+  Bike,
+} from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { Logo } from "@/components/site/Logo";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +18,24 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ride Bangla — Food Delivery, Courier & Digital Services for Bangladesh" },
-      { name: "description", content: "Ride Bangla is building a trusted digital ecosystem for customers, riders, partners and local businesses across Bangladesh." },
-      { property: "og:title", content: "Ride Bangla — Food Delivery, Courier & Digital Services" },
-      { property: "og:description", content: "Building a trusted digital ecosystem for Bangladesh. Founded in Faridpur." },
+      {
+        title:
+          "Ride Bangla — Food Delivery, Courier & Digital Services for Bangladesh",
+      },
+      {
+        name: "description",
+        content:
+          "Ride Bangla is building a trusted digital ecosystem for customers, riders, partners and local businesses across Bangladesh.",
+      },
+      {
+        property: "og:title",
+        content: "Ride Bangla — Food Delivery, Courier & Digital Services",
+      },
+      {
+        property: "og:description",
+        content:
+          "Building a trusted digital ecosystem for Bangladesh. Founded in Faridpur.",
+      },
       { property: "og:url", content: "/" },
     ],
     links: [{ rel: "canonical", href: "/" }],
@@ -22,11 +46,27 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   const { data: home } = useQuery({
     queryKey: ["homepage_content"],
-    queryFn: async () => (await supabase.from("homepage_content").select("*").limit(1).maybeSingle()).data,
+    queryFn: async () =>
+      (
+        await supabase
+          .from("homepage_content")
+          .select("*")
+          .limit(1)
+          .maybeSingle()
+      ).data,
   });
+
   const { data: updates } = useQuery({
     queryKey: ["updates", "home"],
-    queryFn: async () => (await supabase.from("updates").select("*").eq("is_published", true).order("published_at", { ascending: false }).limit(3)).data ?? [],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("updates")
+          .select("*")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false })
+          .limit(3)
+      ).data ?? [],
   });
 
   return (
@@ -43,6 +83,7 @@ function HomePage() {
               <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-green text-white shadow-sm">
                 <Bell className="h-4 w-4" />
               </span>
+
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-brand-green">
                   Latest Update
@@ -51,27 +92,36 @@ function HomePage() {
                   {home.latest_update_text}
                 </span>
               </span>
+
               <span className="hidden shrink-0 items-center gap-1 text-xs font-semibold text-brand-green group-hover:underline sm:inline-flex">
                 Read More <ArrowRight className="h-3.5 w-3.5" />
               </span>
+
               <ArrowRight className="h-4 w-4 shrink-0 text-brand-green sm:hidden" />
             </Link>
           )}
-          <div className="grid items-center gap-8 md:grid-cols-2">
+
+          <div className="grid items-center gap-10 md:grid-cols-2">
             <div>
               <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl">
-                {home?.hero_headline ?? "Food Delivery, Courier & Future Digital Services for Bangladesh"}
+                {home?.hero_headline ??
+                  "Food Delivery, Courier & Future Digital Services for Bangladesh"}
               </h1>
+
               <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-                {home?.hero_subheadline ?? "Building a trusted digital ecosystem for customers, riders, partners and local businesses."}
+                {home?.hero_subheadline ??
+                  "Building a trusted digital ecosystem for customers, riders, partners and local businesses."}
               </p>
+
               <div className="mt-6 flex flex-wrap gap-3">
                 <button
                   disabled
                   className="inline-flex items-center gap-2 rounded-lg bg-brand-green px-5 py-3 text-sm font-semibold text-white opacity-90 shadow-sm"
                 >
-                  <Smartphone className="h-4 w-4" /> Download App — Coming Soon
+                  <Smartphone className="h-4 w-4" />
+                  Download App — Coming Soon
                 </button>
+
                 <Link
                   to="/about"
                   className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
@@ -80,8 +130,12 @@ function HomePage() {
                 </Link>
               </div>
             </div>
+
             <div className="flex justify-center md:justify-end">
-              <Logo className="h-48 w-48 object-contain drop-shadow-md sm:h-60 sm:w-60" />
+              <div className="relative flex h-60 w-60 items-center justify-center sm:h-72 sm:w-72">
+                <div className="absolute inset-6 rounded-full bg-brand-green/5 blur-2xl" />
+                <Logo className="relative h-52 w-52 object-contain drop-shadow-sm sm:h-64 sm:w-64" />
+              </div>
             </div>
           </div>
         </div>
@@ -90,12 +144,18 @@ function HomePage() {
       {/* Intro */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="rounded-2xl border border-border bg-soft-bg p-6 sm:p-8">
-          <h2 className="text-2xl font-bold tracking-tight">A digital ecosystem made in Bangladesh</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            A digital ecosystem made in Bangladesh
+          </h2>
           <p className="mt-3 text-muted-foreground">
-            Ride Bangla is founded in Faridpur, Bangladesh, focused first on Food Delivery and Courier services, with future expansions
-            into customer, rider, partner, agent and digital wallet products.
+            Ride Bangla is founded in Faridpur, Bangladesh, focused first on
+            Food Delivery and Courier services, with future expansions into
+            customer, rider, partner, agent and digital wallet products.
           </p>
-          <Link to="/about" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline">
+          <Link
+            to="/about"
+            className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+          >
             Read more about us <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -105,10 +165,21 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-8">
         <h2 className="text-2xl font-bold tracking-tight">Our Services</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <ServicePreview icon={<Utensils className="h-6 w-6" />} title="Food Delivery" desc="Homemade food, cakes and restaurant meals delivered to your door." />
-          <ServicePreview icon={<Package className="h-6 w-6" />} title="Courier Delivery" desc="Reliable parcel and document courier across cities." />
+          <ServicePreview
+            icon={<Utensils className="h-6 w-6" />}
+            title="Food Delivery"
+            desc="Homemade food, cakes and restaurant meals delivered to your door."
+          />
+          <ServicePreview
+            icon={<Package className="h-6 w-6" />}
+            title="Courier Delivery"
+            desc="Reliable parcel and document courier across cities."
+          />
         </div>
-        <Link to="/services" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline">
+        <Link
+          to="/services"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+        >
           View all services <ArrowRight className="h-4 w-4" />
         </Link>
       </section>
@@ -117,13 +188,36 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-8">
         <h2 className="text-2xl font-bold tracking-tight">Apps Ecosystem</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AppPreview icon={<Smartphone className="h-6 w-6" />} title="Ride Bangla" sub="Customer App" />
-          <AppPreview icon={<Bike className="h-6 w-6" />} title="Ride Bangla Rider" sub="Rider App" />
-          <AppPreview icon={<Building2 className="h-6 w-6" />} title="Ride Bangla Partner" sub="Partner App" />
-          <AppPreview icon={<Users className="h-6 w-6" />} title="Ride Bangla Agent" sub="Agent App" />
-          <AppPreview icon={<Wallet className="h-6 w-6" />} title="Ride Bangla Pay" sub="Digital Wallet" />
+          <AppPreview
+            icon={<Smartphone className="h-6 w-6" />}
+            title="Ride Bangla"
+            sub="Customer App"
+          />
+          <AppPreview
+            icon={<Bike className="h-6 w-6" />}
+            title="Ride Bangla Rider"
+            sub="Rider App"
+          />
+          <AppPreview
+            icon={<Building2 className="h-6 w-6" />}
+            title="Ride Bangla Partner"
+            sub="Partner App"
+          />
+          <AppPreview
+            icon={<Users className="h-6 w-6" />}
+            title="Ride Bangla Agent"
+            sub="Agent App"
+          />
+          <AppPreview
+            icon={<Wallet className="h-6 w-6" />}
+            title="Ride Bangla Pay"
+            sub="Digital Wallet"
+          />
         </div>
-        <Link to="/apps" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline">
+        <Link
+          to="/apps"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+        >
           Explore all apps <ArrowRight className="h-4 w-4" />
         </Link>
       </section>
@@ -132,45 +226,94 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex items-end justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Latest Updates</h2>
-          <Link to="/updates" className="text-sm font-semibold text-brand-green hover:underline">View all</Link>
+          <Link
+            to="/updates"
+            className="text-sm font-semibold text-brand-green hover:underline"
+          >
+            View all
+          </Link>
         </div>
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {(updates ?? []).map((u) => (
-            <article key={u.id} className="overflow-hidden rounded-xl border border-border bg-card">
-              {u.media_url && u.media_type === "image" ? (
-                <img src={u.media_url} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
-              ) : (u.cover_image_url ? (
-                <img src={u.cover_image_url} alt={u.title} loading="lazy" className="aspect-video w-full object-cover" />
-              ) : null)}
+          {(updates ?? []).map((update) => (
+            <article
+              key={update.id}
+              className="overflow-hidden rounded-xl border border-border bg-card"
+            >
+              {update.media_url && update.media_type === "image" ? (
+                <img
+                  src={update.media_url}
+                  alt={update.title}
+                  loading="lazy"
+                  className="aspect-video w-full object-cover"
+                />
+              ) : update.cover_image_url ? (
+                <img
+                  src={update.cover_image_url}
+                  alt={update.title}
+                  loading="lazy"
+                  className="aspect-video w-full object-cover"
+                />
+              ) : null}
+
               <div className="p-5">
-                <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">{u.category}</div>
-                <h3 className="mt-2 text-lg font-semibold">{u.title}</h3>
-                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{u.excerpt ?? u.description}</p>
-                <time className="mt-3 block text-xs text-muted-foreground">{new Date(u.published_at).toLocaleDateString()}</time>
+                <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
+                  {update.category}
+                </div>
+                <h3 className="mt-2 text-lg font-semibold">{update.title}</h3>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                  {update.excerpt ?? update.description}
+                </p>
+                <time className="mt-3 block text-xs text-muted-foreground">
+                  {new Date(update.published_at).toLocaleDateString()}
+                </time>
               </div>
             </article>
           ))}
-          {updates && updates.length === 0 && <p className="text-sm text-muted-foreground">No updates yet.</p>}
+
+          {updates && updates.length === 0 && (
+            <p className="text-sm text-muted-foreground">No updates yet.</p>
+          )}
         </div>
       </section>
     </SiteLayout>
   );
 }
 
-function ServicePreview({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+function ServicePreview({
+  icon,
+  title,
+  desc,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
-      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-green-soft text-brand-green">{icon}</div>
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-green-soft text-brand-green">
+        {icon}
+      </div>
       <h3 className="mt-3 text-lg font-semibold">{title}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
     </div>
   );
 }
 
-function AppPreview({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+function AppPreview({
+  icon,
+  title,
+  sub,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  sub: string;
+}) {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
-      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-red-soft text-brand-red">{icon}</div>
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-red-soft text-brand-red">
+        {icon}
+      </div>
       <h3 className="mt-3 text-base font-semibold">{title}</h3>
       <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
