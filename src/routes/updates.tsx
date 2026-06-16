@@ -50,28 +50,18 @@ function getUpdateDate(update: UpdateItem) {
 }
 
 function UpdatesPage() {
-  const {
-    data: updates,
-    isLoading,
-    isFetching,
-    error,
-  } = useQuery({
+  const { data: updates, isLoading, error } = useQuery({
     queryKey: ["website_updates", "published", "live"],
     retry: false,
     staleTime: 0,
     queryFn: async () => {
-      const query = (supabase as any)
+      const { data, error } = await (supabase as any)
         .from("website_updates")
         .select(
           "id,title,slug,excerpt,body,category,media_type,image_url,video_url,external_url,published,published_at,created_at,updated_at"
         )
         .eq("published", true)
         .order("published_at", { ascending: false });
-
-      const { data, error } = await query;
-
-      console.log("Ride Bangla website_updates data:", data);
-      console.log("Ride Bangla website_updates error:", error);
 
       if (error) {
         throw new Error(error.message || "Could not load website updates.");
@@ -89,7 +79,7 @@ function UpdatesPage() {
       />
 
       <section className="mx-auto max-w-6xl px-4 py-10">
-        {isLoading || isFetching ? (
+        {isLoading ? (
           <p className="text-sm text-muted-foreground">
             Loading latest updates...
           </p>
@@ -156,4 +146,4 @@ function UpdatesPage() {
       </section>
     </SiteLayout>
   );
-                  }
+}
