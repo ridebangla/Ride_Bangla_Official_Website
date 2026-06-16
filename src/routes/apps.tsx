@@ -30,26 +30,30 @@ export const Route = createFileRoute("/apps")({
   component: AppsPage,
 });
 
+function AppImageIcon({ src, alt }: { src: string; alt: string }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="h-full w-full rounded-2xl object-contain"
+      loading="lazy"
+      onError={(event) => {
+        event.currentTarget.style.display = "none";
+      }}
+    />
+  );
+}
+
 const ICONS: Record<string, ReactNode> = {
   "Ride Bangla": (
-    <img
-      src="/assets/app-customer.png"
-      alt="Ride Bangla"
-      className="h-10 w-10 object-contain"
-      loading="lazy"
-    />
+    <AppImageIcon src="/assets/app-customer.png" alt="Ride Bangla Customer App" />
   ),
   "Ride Bangla Rider": (
-    <img
-      src="/assets/app-rider.png"
-      alt="Ride Bangla Rider"
-      className="h-10 w-10 object-contain"
-      loading="lazy"
-    />
+    <AppImageIcon src="/assets/app-rider.png" alt="Ride Bangla Rider App" />
   ),
-  "Ride Bangla Partner": <Building2 className="h-8 w-8" />,
-  "Ride Bangla Agent": <Users className="h-8 w-8" />,
-  "Ride Bangla Pay": <Wallet className="h-8 w-8" />,
+  "Ride Bangla Partner": <Building2 className="h-9 w-9" />,
+  "Ride Bangla Agent": <Users className="h-9 w-9" />,
+  "Ride Bangla Pay": <Wallet className="h-9 w-9" />,
 };
 
 function AppsPage() {
@@ -78,37 +82,37 @@ function AppsPage() {
               key={app.id}
               className="flex flex-col rounded-2xl border border-border bg-card p-5"
             >
-              <div className="flex items-center gap-3">
-                <div className="inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-green to-brand-green-dark p-2 text-white shadow-md">
+              <div className="flex items-center gap-4">
+                <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-brand-green to-brand-green-dark p-2.5 text-white shadow-lg">
                   {ICONS[app.app_name] ?? (
-                    <Smartphone className="h-8 w-8" />
+                    <Smartphone className="h-9 w-9" />
                   )}
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold leading-tight">
+                  <h3 className="text-lg font-semibold leading-tight">
                     {app.app_name}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="mt-0.5 text-sm text-muted-foreground">
                     {app.app_type}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-3 flex-1 text-sm text-muted-foreground">
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">
                 {app.description}
               </p>
 
-              <div className="mt-3">
-                <span className="inline-flex items-center rounded-full bg-brand-orange-soft px-2.5 py-0.5 text-xs font-semibold text-brand-orange">
+              <div className="mt-4">
+                <span className="inline-flex items-center rounded-full bg-brand-orange-soft px-3 py-1 text-xs font-semibold text-brand-orange">
                   {app.status}
                 </span>
               </div>
 
-              <div className="mt-4 flex flex-col gap-2">
+              <div className="mt-5 flex flex-col gap-2.5">
                 <button
                   disabled
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-green px-3 py-2 text-sm font-semibold text-white opacity-90"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-3 py-3 text-sm font-semibold text-white opacity-90"
                 >
                   <Download className="h-4 w-4" />
                   Download APK — Coming Soon
@@ -116,7 +120,7 @@ function AppsPage() {
 
                 <button
                   disabled
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-sm font-semibold text-foreground"
                 >
                   <FaGooglePlay className="h-4 w-4" />
                   Get it on Google Play — Coming Soon
