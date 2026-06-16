@@ -6,6 +6,8 @@ import {
   Users,
   Wallet,
   Download,
+  Bike,
+  ExternalLink,
 } from "lucide-react";
 import { FaGooglePlay } from "react-icons/fa";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
@@ -41,7 +43,7 @@ type AppStatus = {
   sort_order: number | null;
 };
 
-function AppImageIcon({ src, alt }: { src: string; alt: string }) {
+function AppImageIcon({ src, alt, fallback }: { src: string; alt: string; fallback: ReactNode }) {
   return (
     <img
       src={src}
@@ -55,24 +57,38 @@ function AppImageIcon({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-const ICONS: Record<string, ReactNode> = {
-  "Ride Bangla": (
+function getIcon(appName: string) {
+  const normalized = appName.toLowerCase();
+
+  if (normalized.includes("rider")) {
+    return (
+      <AppImageIcon
+        src="/assets/app-rider.png"
+        alt="Ride Bangla Rider App"
+        fallback={<Bike className="h-9 w-9" />}
+      />
+    );
+  }
+
+  if (normalized.includes("partner")) return <Building2 className="h-9 w-9" />;
+  if (normalized.includes("agent")) return <Users className="h-9 w-9" />;
+  if (normalized.includes("pay") || normalized.includes("wallet")) {
+    return <Wallet className="h-9 w-9" />;
+  }
+
+  return (
     <AppImageIcon
       src="/assets/app-customer.png"
       alt="Ride Bangla Customer App"
+      fallback={<Smartphone className="h-9 w-9" />}
     />
-  ),
-  "Ride Bangla Rider": (
-    <AppImageIcon src="/assets/app-rider.png" alt="Ride Bangla Rider App" />
-  ),
-  "Ride Bangla Partner": <Building2 className="h-9 w-9" />,
-  "Ride Bangla Agent": <Users className="h-9 w-9" />,
-  "Ride Bangla Pay": <Wallet className="h-9 w-9" />,
-};
+  );
+}
 
 function AppsPage() {
-  const { data: apps } = useQuery({
+  const { data: apps, isLoading, error } = useQuery({
     queryKey: ["website_app_status"],
+    retry: false,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("website_app_status")
@@ -80,7 +96,6 @@ function AppsPage() {
         .order("sort_order", { ascending: true });
 
       if (error) throw error;
-
       return (data ?? []) as AppStatus[];
     },
   });
@@ -93,58 +108,107 @@ function AppsPage() {
       />
 
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {(apps ?? []).map((app) => (
-            <article
-              key={app.id}
-              className="flex flex-col rounded-2xl border border-border bg-card p-5"
-            >
-              <div className="flex items-center gap-4">
-                <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-brand-green to-brand-green-dark p-2.5 text-white shadow-lg">
-                  {ICONS[app.app_name] ?? <Smartphone className="h-9 w-9" />}
-                </div>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading apps...</p>
+        ) : error ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="text-sm font-semibold text-red-700">
+              Apps could not be loaded.
+            </p>
+            <p className="mt-1 text-xs text-red-600">
+              {(error as Error).message}
+            </p>
+          </div>
+        ) : !apps || apps.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            App list will be available soon.
+          </p>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {apps.map((app) => {
+              const hasApk = Boolean(app.apk_url);
+              const hasPlayStore = Boolean(app.play_store_url);
 
-                <div className="min-w-0">
-                  <h3 className="text-lg font-semibold leading-tight">
-                    {app.app_name}
-                  </h3>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    {app.app_type}
+              return (
+                <article
+                  key={app.id}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-brand-green to-brand-green-dark p-2.5 text-white shadow-lg">
+                      {getIcon(app.app_name)}
+                    </div>
+
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold leading-tight">
+                        {app.app_name}
+                      </h3>
+                      <p className="mt-0.5 text-sm text-muted-foreground">
+                        {app.app_type || "Ride Bangla App"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    {app.description ||
+                      "This Ride Bangla app is being prepared for launch."}
                   </p>
-                </div>
-              </div>
 
-              <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {app.description}
-              </p>
+                  <div className="mt-4">
+                    <span className="inline-flex items-center rounded-full bg-brand-orange-soft px-3 py-1 text-xs font-semibold text-brand-orange">
+                      {app.status || "Coming Soon"}
+                    </span>
+                  </div>
 
-              <div className="mt-4">
-                <span className="inline-flex items-center rounded-full bg-brand-orange-soft px-3 py-1 text-xs font-semibold text-brand-orange">
-                  {app.status || "Coming Soon"}
-                </span>
-              </div>
+                  <div className="mt-5 flex flex-col gap-2.5">
+                    {hasApk ? (
+                      <a
+                        href={app.apk_url || "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-3 py-3 text-sm font-semibold text-white"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download APK
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-brand-green px-3 py-3 text-sm font-semibold text-white opacity-70"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download APK — Coming Soon
+                      </button>
+                    )}
 
-              <div className="mt-5 flex flex-col gap-2.5">
-                <button
-                  disabled
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-3 py-3 text-sm font-semibold text-white opacity-90"
-                >
-                  <Download className="h-4 w-4" />
-                  Download APK — Coming Soon
-                </button>
-
-                <button
-                  disabled
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-sm font-semibold text-foreground"
-                >
-                  <FaGooglePlay className="h-4 w-4" />
-                  Get it on Google Play — Coming Soon
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+                    {hasPlayStore ? (
+                      <a
+                        href={app.play_store_url || "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-sm font-semibold text-foreground hover:bg-secondary"
+                      >
+                        <FaGooglePlay className="h-4 w-4" />
+                        Get it on Google Play
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-sm font-semibold text-foreground opacity-70"
+                      >
+                        <FaGooglePlay className="h-4 w-4" />
+                        Get it on Google Play — Coming Soon
+                      </button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </section>
     </SiteLayout>
   );
-      }
+}
