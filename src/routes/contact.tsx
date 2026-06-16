@@ -63,17 +63,22 @@ function ContactPage() {
     mutationFn: async (input: typeof values) => {
       const parsed = formSchema.parse(input);
 
-      const { error } = await supabase.from("website_contact_messages").insert({
-        name: parsed.name,
-        email: parsed.email,
-        phone: parsed.phone || null,
-        subject: parsed.subject || null,
-        message: parsed.message,
-        source: parsed.source,
-        status: "New",
-      });
+      const { error } = await supabase
+        .from("website_contact_messages" as never)
+        .insert({
+          name: parsed.name,
+          email: parsed.email,
+          phone: parsed.phone || null,
+          subject: parsed.subject || null,
+          message: parsed.message,
+          source: parsed.source,
+          status: "New",
+        } as never);
 
-      if (error) throw error;
+      if (error) {
+        console.error("[Contact] Submit failed:", error);
+        throw error;
+      }
     },
   });
 
@@ -336,4 +341,4 @@ function ContactDetail({
   );
 
   return href ? <a href={href}>{body}</a> : body;
-                  }
+}
