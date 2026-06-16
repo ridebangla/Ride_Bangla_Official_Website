@@ -18,17 +18,31 @@ export const Route = createFileRoute("/updates")({
   component: UpdatesPage,
 });
 
+type UpdateItem = {
+  id: string;
+  title: string;
+  description: string;
+  excerpt: string | null;
+  category: string | null;
+  media_url: string | null;
+  media_type: string | null;
+  cover_image_url: string | null;
+  published_at: string;
+  is_published: boolean | null;
+};
+
 function UpdatesPage() {
   const { data: updates } = useQuery({
-    queryKey: ["website_updates", "all"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("website_updates")
-          .select("*")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false })
-      ).data ?? [],
+    queryKey: ["updates", "all"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("updates")
+        .select("*")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false });
+
+      return (data ?? []) as UpdateItem[];
+    },
   });
 
   return (
@@ -58,7 +72,8 @@ function UpdatesPage() {
                   />
                 ) : update.media_url || update.cover_image_url ? (
                   <img
-                    src={(update.media_url ?? update.cover_image_url) as string}
+                    src={(update.media_url ??
+                      update.cover_image_url) as string}
                     alt={update.title}
                     loading="lazy"
                     className="aspect-video w-full object-cover"
@@ -67,7 +82,7 @@ function UpdatesPage() {
 
                 <div className="p-5">
                   <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
-                    {update.category}
+                    {update.category ?? "Announcement"}
                   </div>
 
                   <h2 className="mt-2 text-lg font-semibold">
