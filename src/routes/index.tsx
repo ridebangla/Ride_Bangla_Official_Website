@@ -45,11 +45,11 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { data: home } = useQuery({
-    queryKey: ["homepage_content"],
+    queryKey: ["website_homepage_content"],
     queryFn: async () =>
       (
         await supabase
-          .from("homepage_content")
+          .from("website_homepage_content")
           .select("*")
           .limit(1)
           .maybeSingle()
@@ -57,11 +57,11 @@ function HomePage() {
   });
 
   const { data: updates } = useQuery({
-    queryKey: ["updates", "home"],
+    queryKey: ["website_updates", "home"],
     queryFn: async () =>
       (
         await supabase
-          .from("updates")
+          .from("website_updates")
           .select("*")
           .eq("is_published", true)
           .order("published_at", { ascending: false })
@@ -318,4 +318,4 @@ function AppPreview({
       <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
   );
-}
+      }
