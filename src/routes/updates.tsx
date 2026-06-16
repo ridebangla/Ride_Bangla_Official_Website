@@ -36,14 +36,8 @@ type UpdateItem = {
 };
 
 function getUpdateMediaUrl(update: UpdateItem) {
-  if (update.media_type === "video") {
-    return update.video_url;
-  }
-
-  if (update.media_type === "image") {
-    return update.image_url;
-  }
-
+  if (update.media_type === "video") return update.video_url;
+  if (update.media_type === "image") return update.image_url;
   return null;
 }
 
@@ -56,18 +50,16 @@ function getUpdateDate(update: UpdateItem) {
 }
 
 function UpdatesPage() {
-  const { data: updates, isLoading } = useQuery({
+  const { data: updates, isLoading, error } = useQuery({
     queryKey: ["website_updates", "published"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("website_updates")
         .select("*")
         .eq("published", true)
         .order("published_at", { ascending: false });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       return (data ?? []) as UpdateItem[];
     },
@@ -84,6 +76,10 @@ function UpdatesPage() {
         {isLoading ? (
           <p className="text-sm text-muted-foreground">
             Loading latest updates...
+          </p>
+        ) : error ? (
+          <p className="text-sm text-red-600">
+            Updates could not be loaded. Please try again later.
           </p>
         ) : !updates || updates.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -139,4 +135,4 @@ function UpdatesPage() {
       </section>
     </SiteLayout>
   );
-        }
+}
