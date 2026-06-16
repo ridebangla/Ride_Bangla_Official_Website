@@ -56,10 +56,10 @@ function getSafePhotoUrl(member: TeamMember) {
 
 function AboutPage() {
   const { data: team } = useQuery({
-    queryKey: ["website_team_members"],
+    queryKey: ["team_members"],
     queryFn: async () => {
       const { data } = await supabase
-        .from("website_team_members")
+        .from("team_members")
         .select(
           "id, name, title, bio, photo_url, facebook_url, instagram_url, sort_order"
         )
@@ -199,4 +199,4 @@ function ValueCard({
       <p className="mt-1 text-sm text-muted-foreground">{body}</p>
     </div>
   );
-}      
+                      }
