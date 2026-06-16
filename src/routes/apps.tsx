@@ -46,10 +46,16 @@ function AppImageIcon({ src, alt }: { src: string; alt: string }) {
 
 const ICONS: Record<string, ReactNode> = {
   "Ride Bangla": (
-    <AppImageIcon src="/assets/app-customer.png" alt="Ride Bangla Customer App" />
+    <AppImageIcon
+      src="/assets/app-customer.png"
+      alt="Ride Bangla Customer App"
+    />
   ),
   "Ride Bangla Rider": (
-    <AppImageIcon src="/assets/app-rider.png" alt="Ride Bangla Rider App" />
+    <AppImageIcon
+      src="/assets/app-rider.png"
+      alt="Ride Bangla Rider App"
+    />
   ),
   "Ride Bangla Partner": <Building2 className="h-9 w-9" />,
   "Ride Bangla Agent": <Users className="h-9 w-9" />,
@@ -58,11 +64,11 @@ const ICONS: Record<string, ReactNode> = {
 
 function AppsPage() {
   const { data: apps } = useQuery({
-    queryKey: ["app_status"],
+    queryKey: ["website_app_status"],
     queryFn: async () =>
       (
         await supabase
-          .from("app_status")
+          .from("website_app_status")
           .select("*")
           .order("sort_order")
       ).data ?? [],
