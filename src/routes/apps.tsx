@@ -30,6 +30,15 @@ export const Route = createFileRoute("/apps")({
   component: AppsPage,
 });
 
+type AppStatus = {
+  id: string;
+  app_name: string;
+  app_type: string | null;
+  description: string | null;
+  status: string | null;
+  sort_order: number | null;
+};
+
 function AppImageIcon({ src, alt }: { src: string; alt: string }) {
   return (
     <img
@@ -64,14 +73,15 @@ const ICONS: Record<string, ReactNode> = {
 
 function AppsPage() {
   const { data: apps } = useQuery({
-    queryKey: ["website_app_status"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("website_app_status")
-          .select("*")
-          .order("sort_order")
-      ).data ?? [],
+    queryKey: ["app_status"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_status")
+        .select("*")
+        .order("sort_order");
+
+      return (data ?? []) as AppStatus[];
+    },
   });
 
   return (
