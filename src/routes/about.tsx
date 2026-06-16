@@ -45,25 +45,21 @@ function getSafePhotoUrl(member: TeamMember) {
     return "/assets/founder-enamul.png";
   }
 
-  const dbPhoto = member.photo_url?.trim();
-
-  if (dbPhoto) {
-    return dbPhoto;
-  }
-
-  return "";
+  return member.photo_url?.trim() || "";
 }
 
 function AboutPage() {
   const { data: team } = useQuery({
-    queryKey: ["team_members"],
+    queryKey: ["website_team_members"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("team_members")
+      const { data, error } = await (supabase as any)
+        .from("website_team_members")
         .select(
           "id, name, title, bio, photo_url, facebook_url, instagram_url, sort_order"
         )
-        .order("sort_order");
+        .order("sort_order", { ascending: true });
+
+      if (error) throw error;
 
       return (data ?? []) as TeamMember[];
     },
@@ -141,14 +137,14 @@ function AboutPage() {
                   </div>
                 </div>
 
-                {member.bio && (
+                {member.bio ? (
                   <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                     {member.bio}
                   </p>
-                )}
+                ) : null}
 
                 <div className="mt-4 flex items-center gap-3">
-                  {member.facebook_url && (
+                  {member.facebook_url ? (
                     <a
                       aria-label={`${member.name} on Facebook`}
                       href={member.facebook_url}
@@ -158,9 +154,9 @@ function AboutPage() {
                     >
                       <FaFacebook className="h-5 w-5" />
                     </a>
-                  )}
+                  ) : null}
 
-                  {member.instagram_url && (
+                  {member.instagram_url ? (
                     <a
                       aria-label={`${member.name} on Instagram`}
                       href={member.instagram_url}
@@ -170,7 +166,7 @@ function AboutPage() {
                     >
                       <FaInstagram className="h-5 w-5" />
                     </a>
-                  )}
+                  ) : null}
                 </div>
               </article>
             );
@@ -199,4 +195,4 @@ function ValueCard({
       <p className="mt-1 text-sm text-muted-foreground">{body}</p>
     </div>
   );
-                      }
+                }
