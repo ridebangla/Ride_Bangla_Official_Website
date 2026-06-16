@@ -63,14 +63,15 @@ function ContactPage() {
     mutationFn: async (input: typeof values) => {
       const parsed = formSchema.parse(input);
 
-      const { error } = await supabase.rpc("submit_website_contact" as never, {
-        p_name: parsed.name,
-        p_email: parsed.email,
-        p_phone: parsed.phone || "",
-        p_subject: parsed.subject || "",
-        p_message: parsed.message,
-        p_source: parsed.source,
-      } as never);
+      const { error } = await supabase.from("contact_messages").insert({
+        name: parsed.name,
+        email: parsed.email,
+        phone: parsed.phone || null,
+        subject: parsed.subject || null,
+        message: parsed.message,
+        source: parsed.source,
+        status: "New",
+      });
 
       if (error) {
         console.error("[Contact] Submit failed:", error);
@@ -338,4 +339,4 @@ function ContactDetail({
   );
 
   return href ? <a href={href}>{body}</a> : body;
-}
+                }
