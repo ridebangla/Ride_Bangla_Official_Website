@@ -128,6 +128,13 @@ export const Route = createRootRouteWithContext<{
       { name: "theme-color", content: "#16a34a" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Ride Bangla" },
+      { property: "og:title", content: "Ride Bangla — Ride. Food. Delivery. Courier." },
+      { name: "twitter:title", content: "Ride Bangla — Ride. Food. Delivery. Courier." },
+      { name: "description", content: "Ride Bangla's official corporate website showcases its digital ecosystem for food delivery, courier services, and future digital solutions." },
+      { property: "og:description", content: "Ride Bangla's official corporate website showcases its digital ecosystem for food delivery, courier services, and future digital solutions." },
+      { name: "twitter:description", content: "Ride Bangla's official corporate website showcases its digital ecosystem for food delivery, courier services, and future digital solutions." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/UjMiqyOujLMBOrHswCxjXUWgDxI3/social-images/social-1781587152060-1000099104.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/UjMiqyOujLMBOrHswCxjXUWgDxI3/social-images/social-1781587152060-1000099104.webp" },
     ],
     links: [
       {
