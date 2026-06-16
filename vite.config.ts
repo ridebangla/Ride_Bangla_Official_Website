@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Nitro deploy preset.
+  // - Inside the Lovable sandbox/preview build, the wrapper forces the Cloudflare
+  //   preset regardless of what we set here, so Lovable preview keeps working.
+  // - Outside Lovable (e.g. when this repo is built on Vercel), this `preset: "vercel"`
+  //   flows through to Nitro, which emits `.vercel/output/` per the Vercel Build
+  //   Output API. That makes Vercel correctly serve SSR routes (no more 404 on
+  //   refresh), server functions (Gemini Help Center, Supabase auth-attacher),
+  //   and the dynamic /sitemap.xml route.
+  nitro: { preset: "vercel" },
 });
