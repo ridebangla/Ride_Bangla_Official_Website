@@ -39,16 +39,16 @@ type TeamMember = {
 };
 
 function getSafePhotoUrl(member: TeamMember) {
-  const dbPhoto = member.photo_url?.trim();
-
-  if (dbPhoto) {
-    return dbPhoto;
-  }
-
   const name = member.name.toLowerCase();
 
   if (name.includes("enamul")) {
     return "/assets/founder-enamul.png";
+  }
+
+  const dbPhoto = member.photo_url?.trim();
+
+  if (dbPhoto) {
+    return dbPhoto;
   }
 
   return "";
