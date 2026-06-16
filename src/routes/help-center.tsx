@@ -40,18 +40,19 @@ function HelpCenterPage() {
   const [q, setQ] = useState("");
 
   const { data: faqs } = useQuery({
-    queryKey: ["website_faqs"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("website_faqs")
-          .select("*")
-          .order("sort_order", { ascending: true })
-      ).data ?? [],
+    queryKey: ["faqs"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("faqs")
+        .select("id, question, answer, sort_order")
+        .order("sort_order", { ascending: true });
+
+      return (data ?? []) as FaqItem[];
+    },
   });
 
   const filtered = useMemo(() => {
-    const items = (faqs ?? []) as FaqItem[];
+    const items = faqs ?? [];
     const needle = q.trim().toLowerCase();
 
     if (!needle) return items;
@@ -257,4 +258,4 @@ function AiAssistant() {
       )}
     </div>
   );
-              }
+}
