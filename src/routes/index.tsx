@@ -43,35 +43,56 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+type HomeContent = {
+  id?: string;
+  hero_headline?: string | null;
+  hero_subheadline?: string | null;
+  latest_update_text?: string | null;
+};
+
+type UpdateItem = {
+  id: string;
+  title: string;
+  description: string;
+  excerpt: string | null;
+  category: string | null;
+  cover_image_url: string | null;
+  media_url: string | null;
+  media_type: string | null;
+  is_published: boolean | null;
+  published_at: string;
+};
+
 function HomePage() {
   const { data: home } = useQuery({
-    queryKey: ["website_homepage_content"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("website_homepage_content")
-          .select("*")
-          .limit(1)
-          .maybeSingle()
-      ).data,
+    queryKey: ["homepage_content"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("homepage_content")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+
+      return data as HomeContent | null;
+    },
   });
 
   const { data: updates } = useQuery({
-    queryKey: ["website_updates", "home"],
-    queryFn: async () =>
-      (
-        await supabase
-          .from("website_updates")
-          .select("*")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false })
-          .limit(3)
-      ).data ?? [],
+    queryKey: ["updates", "home"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("updates")
+        .select("*")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(3);
+
+      return (data ?? []) as UpdateItem[];
+    },
   });
 
   return (
     <SiteLayout>
-      {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-green-soft via-background to-background">
         <div className="mx-auto max-w-6xl px-4 pt-8 pb-12 sm:pt-14 sm:pb-20">
           {home?.latest_update_text && (
@@ -141,7 +162,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Intro */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="rounded-2xl border border-border bg-soft-bg p-6 sm:p-8">
           <h2 className="text-2xl font-bold tracking-tight">
@@ -161,7 +181,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Services preview */}
       <section className="mx-auto max-w-6xl px-4 py-8">
         <h2 className="text-2xl font-bold tracking-tight">Our Services</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -184,7 +203,6 @@ function HomePage() {
         </Link>
       </section>
 
-      {/* Apps preview */}
       <section className="mx-auto max-w-6xl px-4 py-8">
         <h2 className="text-2xl font-bold tracking-tight">Apps Ecosystem</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -222,7 +240,6 @@ function HomePage() {
         </Link>
       </section>
 
-      {/* Updates */}
       <section className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex items-end justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Latest Updates</h2>
@@ -258,7 +275,7 @@ function HomePage() {
 
               <div className="p-5">
                 <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
-                  {update.category}
+                  {update.category ?? "Announcement"}
                 </div>
                 <h3 className="mt-2 text-lg font-semibold">{update.title}</h3>
                 <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
@@ -318,4 +335,4 @@ function AppPreview({
       <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
   );
-      }
+          }
