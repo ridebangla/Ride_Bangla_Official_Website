@@ -36,6 +36,8 @@ type AppStatus = {
   app_type: string | null;
   description: string | null;
   status: string | null;
+  apk_url?: string | null;
+  play_store_url?: string | null;
   sort_order: number | null;
 };
 
@@ -61,10 +63,7 @@ const ICONS: Record<string, ReactNode> = {
     />
   ),
   "Ride Bangla Rider": (
-    <AppImageIcon
-      src="/assets/app-rider.png"
-      alt="Ride Bangla Rider App"
-    />
+    <AppImageIcon src="/assets/app-rider.png" alt="Ride Bangla Rider App" />
   ),
   "Ride Bangla Partner": <Building2 className="h-9 w-9" />,
   "Ride Bangla Agent": <Users className="h-9 w-9" />,
@@ -73,12 +72,14 @@ const ICONS: Record<string, ReactNode> = {
 
 function AppsPage() {
   const { data: apps } = useQuery({
-    queryKey: ["app_status"],
+    queryKey: ["website_app_status"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("app_status")
+      const { data, error } = await (supabase as any)
+        .from("website_app_status")
         .select("*")
-        .order("sort_order");
+        .order("sort_order", { ascending: true });
+
+      if (error) throw error;
 
       return (data ?? []) as AppStatus[];
     },
@@ -100,9 +101,7 @@ function AppsPage() {
             >
               <div className="flex items-center gap-4">
                 <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-brand-green to-brand-green-dark p-2.5 text-white shadow-lg">
-                  {ICONS[app.app_name] ?? (
-                    <Smartphone className="h-9 w-9" />
-                  )}
+                  {ICONS[app.app_name] ?? <Smartphone className="h-9 w-9" />}
                 </div>
 
                 <div className="min-w-0">
@@ -121,7 +120,7 @@ function AppsPage() {
 
               <div className="mt-4">
                 <span className="inline-flex items-center rounded-full bg-brand-orange-soft px-3 py-1 text-xs font-semibold text-brand-orange">
-                  {app.status}
+                  {app.status || "Coming Soon"}
                 </span>
               </div>
 
@@ -148,4 +147,4 @@ function AppsPage() {
       </section>
     </SiteLayout>
   );
-}
+      }
