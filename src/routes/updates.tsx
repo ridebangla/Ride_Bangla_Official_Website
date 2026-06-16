@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { ExternalLink, PlayCircle } from "lucide-react";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,15 +39,15 @@ type UpdateItem = {
 function getUpdateMediaUrl(update: UpdateItem) {
   if (update.media_type === "video") return update.video_url;
   if (update.media_type === "image") return update.image_url;
-  return null;
+  return update.image_url || update.video_url || null;
 }
 
-function getUpdateSummary(update: UpdateItem) {
-  return update.excerpt || update.body || "";
+function getUpdateText(update: UpdateItem) {
+  return update.body || update.excerpt || "";
 }
 
 function getUpdateDate(update: UpdateItem) {
-  return update.published_at || update.created_at || new Date().toISOString();
+  return update.published_at || update.created_at || update.updated_at || "";
 }
 
 function UpdatesPage() {
@@ -97,19 +98,21 @@ function UpdatesPage() {
             No updates yet. Check back soon.
           </p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {updates.map((update) => {
               const mediaUrl = getUpdateMediaUrl(update);
+              const updateDate = getUpdateDate(update);
 
               return (
                 <article
                   key={update.id}
-                  className="overflow-hidden rounded-xl border border-border bg-card"
+                  className="flex flex-col overflow-hidden rounded-xl border border-border bg-card"
                 >
                   {mediaUrl && update.media_type === "video" ? (
                     <video
                       src={mediaUrl}
                       controls
+                      preload="metadata"
                       className="aspect-video w-full bg-black object-cover"
                     />
                   ) : mediaUrl ? (
@@ -119,10 +122,14 @@ function UpdatesPage() {
                       loading="lazy"
                       className="aspect-video w-full object-cover"
                     />
-                  ) : null}
+                  ) : (
+                    <div className="flex aspect-video w-full items-center justify-center bg-brand-green-soft text-brand-green">
+                      <PlayCircle className="h-10 w-10 opacity-60" />
+                    </div>
+                  )}
 
-                  <div className="p-5">
-                    <div className="inline-flex items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="inline-flex w-fit items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
                       {update.category || "Announcement"}
                     </div>
 
@@ -130,13 +137,28 @@ function UpdatesPage() {
                       {update.title}
                     </h2>
 
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {getUpdateSummary(update)}
+                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                      {getUpdateText(update)}
                     </p>
 
-                    <time className="mt-3 block text-xs text-muted-foreground">
-                      {new Date(getUpdateDate(update)).toLocaleDateString()}
-                    </time>
+                    <div className="mt-auto pt-4">
+                      {updateDate && (
+                        <time className="block text-xs text-muted-foreground">
+                          {new Date(updateDate).toLocaleDateString()}
+                        </time>
+                      )}
+
+                      {update.external_url && (
+                        <a
+                          href={update.external_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+                        >
+                          Learn more <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </article>
               );
