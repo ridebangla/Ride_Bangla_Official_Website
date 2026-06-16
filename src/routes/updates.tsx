@@ -21,18 +21,18 @@ export const Route = createFileRoute("/updates")({
 type UpdateItem = {
   id: string;
   title: string;
-  slug: string;
+  slug: string | null;
   excerpt: string | null;
-  body: string;
-  category: string;
-  media_type: string;
+  body: string | null;
+  category: string | null;
+  media_type: string | null;
   image_url: string | null;
   video_url: string | null;
   external_url: string | null;
-  published: boolean;
+  published: boolean | null;
   published_at: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 function getUpdateMediaUrl(update: UpdateItem) {
@@ -42,24 +42,40 @@ function getUpdateMediaUrl(update: UpdateItem) {
 }
 
 function getUpdateSummary(update: UpdateItem) {
-  return update.excerpt || update.body;
+  return update.excerpt || update.body || "";
 }
 
 function getUpdateDate(update: UpdateItem) {
-  return update.published_at || update.created_at;
+  return update.published_at || update.created_at || new Date().toISOString();
 }
 
 function UpdatesPage() {
-  const { data: updates, isLoading, error } = useQuery({
-    queryKey: ["website_updates", "published"],
+  const {
+    data: updates,
+    isLoading,
+    isFetching,
+    error,
+  } = useQuery({
+    queryKey: ["website_updates", "published", "live"],
+    retry: false,
+    staleTime: 0,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const query = (supabase as any)
         .from("website_updates")
-        .select("*")
+        .select(
+          "id,title,slug,excerpt,body,category,media_type,image_url,video_url,external_url,published,published_at,created_at,updated_at"
+        )
         .eq("published", true)
         .order("published_at", { ascending: false });
 
-      if (error) throw error;
+      const { data, error } = await query;
+
+      console.log("Ride Bangla website_updates data:", data);
+      console.log("Ride Bangla website_updates error:", error);
+
+      if (error) {
+        throw new Error(error.message || "Could not load website updates.");
+      }
 
       return (data ?? []) as UpdateItem[];
     },
@@ -73,14 +89,19 @@ function UpdatesPage() {
       />
 
       <section className="mx-auto max-w-6xl px-4 py-10">
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <p className="text-sm text-muted-foreground">
             Loading latest updates...
           </p>
         ) : error ? (
-          <p className="text-sm text-red-600">
-            Updates could not be loaded. Please try again later.
-          </p>
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="text-sm font-semibold text-red-700">
+              Updates could not be loaded.
+            </p>
+            <p className="mt-1 text-xs text-red-600">
+              {(error as Error).message}
+            </p>
+          </div>
         ) : !updates || updates.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No updates yet. Check back soon.
@@ -135,4 +156,4 @@ function UpdatesPage() {
       </section>
     </SiteLayout>
   );
-}
+                  }
