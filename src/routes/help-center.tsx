@@ -170,6 +170,7 @@ function AiAssistant() {
 
       if (response.ok) {
         setAnswer(response.answer);
+        setQuestion("");
       } else {
         setError(response.error);
       }
@@ -199,20 +200,20 @@ function AiAssistant() {
       </div>
 
       <form onSubmit={onAsk} className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <input
-          type="text"
+        <textarea
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
           maxLength={2000}
+          rows={2}
           placeholder="e.g. How do I become a Ride Bangla rider?"
           aria-label="Ask the Ride Bangla AI assistant"
-          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none placeholder:text-muted-foreground/70 focus:border-brand-green focus:ring-2 focus:ring-brand-green/25"
+          className="min-h-12 w-full resize-y rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none placeholder:text-muted-foreground/70 focus:border-brand-green focus:ring-2 focus:ring-brand-green/25"
         />
 
         <button
           type="submit"
           disabled={loading || question.trim().length < 2}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-green-dark disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-green px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-green-dark disabled:opacity-60 sm:min-w-28"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
