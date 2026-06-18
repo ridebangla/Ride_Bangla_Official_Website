@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, ImageIcon, PlayCircle } from "lucide-react";
+import {
+  AlertCircle,
+  ExternalLink,
+  ImageIcon,
+  PlayCircle,
+  Video,
+} from "lucide-react";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -36,8 +42,12 @@ type UpdateItem = {
   updated_at: string | null;
 };
 
+function cleanUrl(url: string | null) {
+  return url?.trim() || "";
+}
+
 function getUpdateText(update: UpdateItem) {
-  return update.body || update.excerpt || "";
+  return update.body?.trim() || update.excerpt?.trim() || "";
 }
 
 function getUpdateDate(update: UpdateItem) {
@@ -56,7 +66,8 @@ function UpdatesPage() {
           "id,title,slug,excerpt,body,category,media_type,image_url,video_url,external_url,published,published_at,created_at,updated_at"
         )
         .eq("published", true)
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
 
       if (error) {
         throw new Error(error.message || "Could not load website updates.");
@@ -96,8 +107,10 @@ function UpdatesPage() {
             {updates.map((update) => {
               const updateDate = getUpdateDate(update);
               const updateText = getUpdateText(update);
-              const hasImage = Boolean(update.image_url);
-              const hasVideo = Boolean(update.video_url);
+              const imageUrl = cleanUrl(update.image_url);
+              const videoUrl = cleanUrl(update.video_url);
+              const hasImage = Boolean(imageUrl);
+              const hasVideo = Boolean(videoUrl);
               const hasAnyMedia = hasImage || hasVideo;
 
               return (
@@ -110,7 +123,7 @@ function UpdatesPage() {
                       {hasImage ? (
                         <div className="overflow-hidden rounded-2xl bg-white">
                           <img
-                            src={update.image_url || ""}
+                            src={imageUrl}
                             alt={update.title}
                             loading="lazy"
                             className="h-auto max-h-[780px] min-h-[220px] w-full object-contain"
@@ -119,17 +132,7 @@ function UpdatesPage() {
                       ) : null}
 
                       {hasVideo ? (
-                        <div className="overflow-hidden rounded-2xl bg-black">
-                          <video
-                            src={update.video_url || ""}
-                            controls
-                            playsInline
-                            preload="metadata"
-                            className="h-auto max-h-[780px] min-h-[260px] w-full bg-black object-contain"
-                          >
-                            Your browser does not support video playback.
-                          </video>
-                        </div>
+                        <VideoBlock title={update.title} videoUrl={videoUrl} />
                       ) : null}
                     </div>
                   ) : (
@@ -150,12 +153,12 @@ function UpdatesPage() {
 
                       <span className="rounded-full bg-brand-green-soft px-3 py-1 text-xs font-semibold text-brand-green">
                         {hasImage && hasVideo
-                          ? "image + video"
+                          ? "Image + Video"
                           : hasVideo
-                            ? "video"
+                            ? "Video"
                             : hasImage
-                              ? "image"
-                              : update.media_type || "text"}
+                              ? "Image"
+                              : update.media_type || "Text"}
                       </span>
                     </div>
 
@@ -178,16 +181,31 @@ function UpdatesPage() {
                         <span />
                       )}
 
-                      {update.external_url ? (
-                        <a
-                          href={update.external_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
-                        >
-                          Learn more <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      ) : null}
+                      <div className="flex flex-wrap items-center gap-3">
+                        {hasVideo ? (
+                          <a
+                            href={videoUrl}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+                          >
+                            Open Video{" "}
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        ) : null}
+
+                        {update.external_url ? (
+                          <a
+                            href={update.external_url}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+                          >
+                            Learn more{" "}
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -197,5 +215,47 @@ function UpdatesPage() {
         )}
       </section>
     </SiteLayout>
+  );
+}
+
+function VideoBlock({ title, videoUrl }: { title: string; videoUrl: string }) {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-black">
+      <video
+        controls
+        playsInline
+        preload="metadata"
+        className="h-auto max-h-[780px] min-h-[260px] w-full bg-black object-contain"
+      >
+        <source src={videoUrl} type="video/mp4" />
+        <source src={videoUrl} />
+        Your browser does not support video playback.
+      </video>
+
+      <div className="border-t border-white/10 bg-black p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3 text-white">
+            <Video className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" />
+            <div>
+              <p className="text-sm font-semibold">Video update</p>
+              <p className="mt-1 text-xs leading-5 text-white/65">
+                If the video does not play in your browser, open it directly.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href={videoUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label={`Open video: ${title}`}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-black transition hover:bg-white/90"
+          >
+            Open Video
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }
