@@ -19,23 +19,37 @@ type UpdateNotification = {
   id: string;
   title: string;
   excerpt: string | null;
-  description: string | null;
+  body: string | null;
   category: string | null;
+  media_type: string | null;
   published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 };
+
+function getUpdateText(update: UpdateNotification) {
+  return update.excerpt || update.body || "New Ride Bangla update published.";
+}
+
+function getUpdateDate(update: UpdateNotification) {
+  return update.published_at || update.created_at || update.updated_at || "";
+}
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const { data: notifications } = useQuery({
-    queryKey: ["header_update_notifications"],
+    queryKey: ["website_updates", "header_notifications"],
     retry: false,
+    staleTime: 0,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("updates")
-        .select("id,title,excerpt,description,category,published_at")
-        .eq("is_published", true)
+      const { data, error } = await (supabase as any)
+        .from("website_updates")
+        .select(
+          "id,title,excerpt,body,category,media_type,published_at,created_at,updated_at"
+        )
+        .eq("published", true)
         .order("published_at", { ascending: false })
         .limit(5);
 
@@ -86,14 +100,14 @@ export function Header() {
             >
               <Bell className="h-5 w-5 text-foreground" />
 
-              {notificationCount > 0 && (
+              {notificationCount > 0 ? (
                 <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-red px-1 text-[10px] font-bold text-white">
                   {notificationCount}
                 </span>
-              )}
+              ) : null}
             </button>
 
-            {notificationOpen && (
+            {notificationOpen ? (
               <div className="absolute right-0 top-12 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-xl">
                 <div className="border-b border-border px-4 py-3">
                   <p className="text-sm font-bold text-foreground">
@@ -126,16 +140,26 @@ export function Header() {
                             <p className="line-clamp-1 text-sm font-semibold text-foreground">
                               {update.title}
                             </p>
+
                             <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                              {update.excerpt ??
-                                update.description ??
-                                "New Ride Bangla update published."}
+                              {getUpdateText(update)}
                             </p>
-                            {update.category && (
-                              <span className="mt-2 inline-flex rounded-full bg-brand-orange-soft px-2 py-0.5 text-[10px] font-semibold text-brand-orange">
-                                {update.category}
+
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              <span className="inline-flex rounded-full bg-brand-orange-soft px-2 py-0.5 text-[10px] font-semibold text-brand-orange">
+                                {update.category || "Announcement"}
                               </span>
-                            )}
+
+                              <span className="inline-flex rounded-full bg-brand-green-soft px-2 py-0.5 text-[10px] font-semibold text-brand-green">
+                                {update.media_type || "update"}
+                              </span>
+                            </div>
+
+                            {getUpdateDate(update) ? (
+                              <time className="mt-2 block text-[10px] text-muted-foreground">
+                                {new Date(getUpdateDate(update)).toLocaleDateString()}
+                              </time>
+                            ) : null}
                           </div>
                         </div>
                       </Link>
@@ -151,7 +175,7 @@ export function Header() {
                   View all updates
                 </Link>
               </div>
-            )}
+            ) : null}
           </div>
 
           <button
@@ -165,7 +189,7 @@ export function Header() {
         </div>
       </div>
 
-      {open && (
+      {open ? (
         <nav
           className="border-t border-border bg-background md:hidden"
           aria-label="Mobile"
@@ -188,7 +212,7 @@ export function Header() {
             ))}
           </ul>
         </nav>
-      )}
+      ) : null}
     </header>
   );
-}
+                     }
