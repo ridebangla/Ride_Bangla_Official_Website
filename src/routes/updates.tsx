@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, PlayCircle } from "lucide-react";
+import { ExternalLink, ImageIcon, PlayCircle } from "lucide-react";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -46,7 +46,7 @@ function getUpdateDate(update: UpdateItem) {
 
 function UpdatesPage() {
   const { data: updates, isLoading, error } = useQuery({
-    queryKey: ["website_updates", "published", "mixed", "full"],
+    queryKey: ["website_updates", "published", "full"],
     retry: false,
     staleTime: 0,
     queryFn: async () => {
@@ -73,7 +73,7 @@ function UpdatesPage() {
         subtitle="News and product announcements from the Ride Bangla team."
       />
 
-      <section className="mx-auto max-w-6xl px-4 py-10">
+      <section className="mx-auto max-w-5xl px-4 py-10">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">
             Loading latest updates...
@@ -92,80 +92,102 @@ function UpdatesPage() {
             No updates yet. Check back soon.
           </p>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="space-y-8">
             {updates.map((update) => {
               const updateDate = getUpdateDate(update);
+              const updateText = getUpdateText(update);
               const hasImage = Boolean(update.image_url);
               const hasVideo = Boolean(update.video_url);
-              const updateText = getUpdateText(update);
+              const hasAnyMedia = hasImage || hasVideo;
 
               return (
                 <article
                   key={update.id}
-                  className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+                  className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
                 >
-                  {hasImage ? (
-                    <img
-                      src={update.image_url || ""}
-                      alt={update.title}
-                      loading="lazy"
-                      className="max-h-[520px] w-full object-cover"
-                    />
-                  ) : null}
+                  {hasAnyMedia ? (
+                    <div className="space-y-4 bg-black/[0.03] p-3 sm:p-4">
+                      {hasImage ? (
+                        <div className="overflow-hidden rounded-2xl bg-white">
+                          <img
+                            src={update.image_url || ""}
+                            alt={update.title}
+                            loading="lazy"
+                            className="h-auto max-h-[780px] min-h-[220px] w-full object-contain"
+                          />
+                        </div>
+                      ) : null}
 
-                  {hasVideo ? (
-                    <video
-                      src={update.video_url || ""}
-                      controls
-                      preload="metadata"
-                      className="max-h-[520px] w-full bg-black object-contain"
-                    />
-                  ) : null}
-
-                  {!hasImage && !hasVideo ? (
-                    <div className="flex min-h-52 w-full items-center justify-center bg-brand-green-soft text-brand-green">
-                      <PlayCircle className="h-12 w-12 opacity-60" />
+                      {hasVideo ? (
+                        <div className="overflow-hidden rounded-2xl bg-black">
+                          <video
+                            src={update.video_url || ""}
+                            controls
+                            playsInline
+                            preload="metadata"
+                            className="h-auto max-h-[780px] min-h-[260px] w-full bg-black object-contain"
+                          >
+                            Your browser does not support video playback.
+                          </video>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="flex min-h-[260px] w-full items-center justify-center bg-brand-green-soft text-brand-green">
+                      {update.media_type === "image" ? (
+                        <ImageIcon className="h-14 w-14 opacity-60" />
+                      ) : (
+                        <PlayCircle className="h-14 w-14 opacity-60" />
+                      )}
+                    </div>
+                  )}
 
-                  <div className="flex flex-1 flex-col p-5 sm:p-6">
+                  <div className="p-5 sm:p-7">
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className="inline-flex w-fit items-center rounded-full bg-brand-orange-soft px-2 py-0.5 text-xs font-semibold text-brand-orange">
+                      <span className="rounded-full bg-brand-orange-soft px-3 py-1 text-xs font-semibold text-brand-orange">
                         {update.category || "Announcement"}
-                      </div>
+                      </span>
 
-                      <div className="inline-flex w-fit items-center rounded-full bg-brand-green-soft px-2 py-0.5 text-xs font-semibold text-brand-green">
-                        {update.media_type || "text"}
-                      </div>
+                      <span className="rounded-full bg-brand-green-soft px-3 py-1 text-xs font-semibold text-brand-green">
+                        {hasImage && hasVideo
+                          ? "image + video"
+                          : hasVideo
+                            ? "video"
+                            : hasImage
+                              ? "image"
+                              : update.media_type || "text"}
+                      </span>
                     </div>
 
-                    <h2 className="mt-3 text-xl font-bold leading-snug">
+                    <h2 className="mt-4 text-2xl font-bold leading-snug text-foreground">
                       {update.title}
                     </h2>
 
                     {updateText ? (
-                      <p className="mt-3 whitespace-pre-line break-words text-sm leading-7 text-muted-foreground">
+                      <div className="mt-4 whitespace-pre-line break-words text-base leading-8 text-muted-foreground">
                         {updateText}
-                      </p>
+                      </div>
                     ) : null}
 
-                    <div className="mt-auto pt-5">
-                      {updateDate && (
-                        <time className="block text-xs text-muted-foreground">
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                      {updateDate ? (
+                        <time className="text-xs font-medium text-muted-foreground">
                           {new Date(updateDate).toLocaleDateString()}
                         </time>
+                      ) : (
+                        <span />
                       )}
 
-                      {update.external_url && (
+                      {update.external_url ? (
                         <a
                           href={update.external_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
+                          className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
                         >
                           Learn more <ExternalLink className="h-3.5 w-3.5" />
                         </a>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </article>
