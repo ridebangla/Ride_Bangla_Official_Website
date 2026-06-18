@@ -119,14 +119,14 @@ function UpdatesPage() {
                   className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
                 >
                   {hasAnyMedia ? (
-                    <div className="space-y-4 bg-black/[0.03] p-3 sm:p-4">
+                    <div className="space-y-4 bg-white p-3 sm:p-4">
                       {hasImage ? (
-                        <div className="overflow-hidden rounded-2xl bg-white">
+                        <div className="overflow-hidden rounded-2xl border border-border bg-white">
                           <img
                             src={imageUrl}
                             alt={update.title}
                             loading="lazy"
-                            className="h-auto max-h-[780px] min-h-[220px] w-full object-contain"
+                            className="block h-auto w-full object-contain"
                           />
                         </div>
                       ) : null}
@@ -189,8 +189,7 @@ function UpdatesPage() {
                             rel="noreferrer noopener"
                             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
                           >
-                            Open Video{" "}
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            Open Video <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         ) : null}
 
@@ -201,8 +200,7 @@ function UpdatesPage() {
                             rel="noreferrer noopener"
                             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
                           >
-                            Learn more{" "}
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            Learn more <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         ) : null}
                       </div>
