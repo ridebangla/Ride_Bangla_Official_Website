@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import {
-  AlertCircle,
+  CheckCircle2,
+  Copy,
   ExternalLink,
+  Heart,
   ImageIcon,
+  Loader2,
+  MessageCircle,
   PlayCircle,
+  Send,
+  Share2,
   Video,
 } from "lucide-react";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
@@ -205,6 +212,8 @@ function UpdatesPage() {
                         ) : null}
                       </div>
                     </div>
+
+                    <UpdateEngagement update={update} />
                   </div>
                 </article>
               );
@@ -213,6 +222,233 @@ function UpdatesPage() {
         )}
       </section>
     </SiteLayout>
+  );
+}
+
+function UpdateEngagement({ update }: { update: UpdateItem }) {
+  const queryClient = useQueryClient();
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [commentName, setCommentName] = useState("");
+  const [commentEmail, setCommentEmail] = useState("");
+  const [commentText, setCommentText] = useState("");
+  const [commentMessage, setCommentMessage] = useState("");
+
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ["website_update_likes_count", update.id],
+    queryFn: async () => {
+      const { count, error } = await (supabase as any)
+        .from("website_update_likes")
+        .select("id", { count: "exact", head: true })
+        .eq("update_id", update.id);
+
+      if (error) return 0;
+      return count ?? 0;
+    },
+  });
+
+  const { data: commentCount = 0 } = useQuery({
+    queryKey: ["website_update_comments_count", update.id],
+    queryFn: async () => {
+      const { count, error } = await (supabase as any)
+        .from("website_update_comments")
+        .select("id", { count: "exact", head: true })
+        .eq("update_id", update.id)
+        .eq("status", "approved");
+
+      if (error) return 0;
+      return count ?? 0;
+    },
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await (supabase as any)
+        .from("website_update_likes")
+        .insert({
+          update_id: update.id,
+        });
+
+      if (error) {
+        throw new Error(error.message || "Could not like this update.");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["website_update_likes_count", update.id],
+      });
+    },
+  });
+
+  const commentMutation = useMutation({
+    mutationFn: async () => {
+      const name = commentName.trim();
+      const email = commentEmail.trim();
+      const comment = commentText.trim();
+
+      if (!name || !comment) {
+        throw new Error("Please write your name and comment.");
+      }
+
+      const { error } = await (supabase as any)
+        .from("website_update_comments")
+        .insert({
+          update_id: update.id,
+          name,
+          email: email || null,
+          comment,
+          status: "pending",
+        });
+
+      if (error) {
+        throw new Error(error.message || "Could not submit comment.");
+      }
+    },
+    onSuccess: () => {
+      setCommentName("");
+      setCommentEmail("");
+      setCommentText("");
+      setCommentMessage(
+        "Comment submitted. It will appear after admin approval."
+      );
+      setShowCommentForm(false);
+    },
+    onError: (error) => {
+      setCommentMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not submit comment. Please try again."
+      );
+    },
+  });
+
+  const getShareUrl = () => {
+    if (typeof window === "undefined") return "https://ridebangla.bd/updates";
+    return `${window.location.origin}/updates`;
+  };
+
+  const shareUpdate = async () => {
+    const shareUrl = getShareUrl();
+    const shareText = `${update.title} - Ride Bangla Updates`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: update.title,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+      } catch {
+        setCopied(false);
+      }
+    }
+  };
+
+  return (
+    <div className="mt-6 border-t border-border pt-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => likeMutation.mutate()}
+          disabled={likeMutation.isPending}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand-green hover:text-brand-green disabled:opacity-60"
+        >
+          {likeMutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Heart className="h-4 w-4" />
+          )}
+          Like {likeCount > 0 ? `(${likeCount})` : ""}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowCommentForm((current) => !current)}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand-green hover:text-brand-green"
+        >
+          <MessageCircle className="h-4 w-4" />
+          Comment {commentCount > 0 ? `(${commentCount})` : ""}
+        </button>
+
+        <button
+          type="button"
+          onClick={shareUpdate}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand-green hover:text-brand-green"
+        >
+          {copied ? <Copy className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+          {copied ? "Copied" : "Share"}
+        </button>
+      </div>
+
+      {commentMessage ? (
+        <div className="mt-4 flex items-start gap-2 rounded-2xl border border-brand-green/20 bg-brand-green-soft px-4 py-3 text-sm font-semibold text-brand-green">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{commentMessage}</span>
+        </div>
+      ) : null}
+
+      {showCommentForm ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setCommentMessage("");
+            commentMutation.mutate();
+          }}
+          className="mt-4 rounded-2xl border border-border bg-background p-4"
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <input
+              value={commentName}
+              onChange={(event) => setCommentName(event.target.value)}
+              placeholder="Your name"
+              className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-green"
+              maxLength={120}
+            />
+
+            <input
+              value={commentEmail}
+              onChange={(event) => setCommentEmail(event.target.value)}
+              placeholder="Email (optional)"
+              type="email"
+              className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-green"
+              maxLength={255}
+            />
+          </div>
+
+          <textarea
+            value={commentText}
+            onChange={(event) => setCommentText(event.target.value)}
+            placeholder="Write your comment..."
+            className="mt-3 min-h-28 w-full resize-y rounded-xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-green"
+            maxLength={1500}
+          />
+
+          <button
+            type="submit"
+            disabled={commentMutation.isPending}
+            className="mt-3 inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-green-dark disabled:opacity-60"
+          >
+            {commentMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {commentMutation.isPending ? "Submitting..." : "Submit Comment"}
+          </button>
+        </form>
+      ) : null}
+    </div>
   );
 }
 
@@ -256,4 +492,4 @@ function VideoBlock({ title, videoUrl }: { title: string; videoUrl: string }) {
       </div>
     </div>
   );
-}
+                         }
