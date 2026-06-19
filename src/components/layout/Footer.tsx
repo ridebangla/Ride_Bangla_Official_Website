@@ -3,9 +3,21 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/site/Logo";
 import { FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Globe } from "lucide-react";
 
-const officialFacebookUrl = "https://www.facebook.com/ridebangla";
+const officialContact = {
+  website: "https://ridebangla.bd",
+  websiteLabel: "ridebangla.bd",
+  businessEmail: "info@ridebangla.bd",
+  supportEmail: "support@ridebangla.bd",
+  phone: "+8801309587749",
+  phoneLabel: "+880 1309-587749",
+  whatsapp: "8801309587749",
+  facebookUrl: "https://www.facebook.com/ridebangla",
+  instagramUrl: "https://www.instagram.com/ride.bangla_",
+  youtubeUrl: "https://www.youtube.com/@ridebangla-0",
+  address: "Faridpur, Bangladesh",
+};
 
 export function Footer() {
   const { data: ci } = useQuery({
@@ -20,7 +32,16 @@ export function Footer() {
       ).data,
   });
 
-  const facebookUrl = ci?.facebook_url || officialFacebookUrl;
+  const businessEmail =
+    ci?.business_email || ci?.email || officialContact.businessEmail;
+  const supportEmail = ci?.support_email || officialContact.supportEmail;
+  const phone = ci?.phone || officialContact.phone;
+  const phoneLabel = ci?.phone || officialContact.phoneLabel;
+  const whatsapp = ci?.whatsapp || officialContact.whatsapp;
+  const facebookUrl = ci?.facebook_url || officialContact.facebookUrl;
+  const instagramUrl = ci?.instagram_url || officialContact.instagramUrl;
+  const youtubeUrl = ci?.youtube_url || officialContact.youtubeUrl;
+  const address = ci?.address || officialContact.address;
 
   return (
     <footer className="mt-16 border-t border-border bg-soft-bg">
@@ -46,34 +67,22 @@ export function Footer() {
           <h3 className="mb-3 text-sm font-semibold">Quick Links</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link
-                to="/about"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/about" className="text-muted-foreground hover:text-brand-green">
                 About
               </Link>
             </li>
             <li>
-              <Link
-                to="/services"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/services" className="text-muted-foreground hover:text-brand-green">
                 Services
               </Link>
             </li>
             <li>
-              <Link
-                to="/apps"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/apps" className="text-muted-foreground hover:text-brand-green">
                 Apps
               </Link>
             </li>
             <li>
-              <Link
-                to="/updates"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/updates" className="text-muted-foreground hover:text-brand-green">
                 Updates
               </Link>
             </li>
@@ -84,42 +93,27 @@ export function Footer() {
           <h3 className="mb-3 text-sm font-semibold">Support</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link
-                to="/help-center"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/help-center" className="text-muted-foreground hover:text-brand-green">
                 Help Center
               </Link>
             </li>
             <li>
-              <Link
-                to="/contact"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/contact" className="text-muted-foreground hover:text-brand-green">
                 Contact
               </Link>
             </li>
             <li>
-              <Link
-                to="/privacy-policy"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/privacy-policy" className="text-muted-foreground hover:text-brand-green">
                 Privacy Policy
               </Link>
             </li>
             <li>
-              <Link
-                to="/terms-and-conditions"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/terms-and-conditions" className="text-muted-foreground hover:text-brand-green">
                 Terms & Conditions
               </Link>
             </li>
             <li>
-              <Link
-                to="/cookie-policy"
-                className="text-muted-foreground hover:text-brand-green"
-              >
+              <Link to="/cookie-policy" className="text-muted-foreground hover:text-brand-green">
                 Cookie Policy
               </Link>
             </li>
@@ -130,39 +124,55 @@ export function Footer() {
           <h3 className="mb-3 text-sm font-semibold">Connect</h3>
 
           <ul className="space-y-2 text-sm">
-            {ci?.business_email && (
-              <li>
-                <a
-                  href={`mailto:${ci.business_email}`}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
-                >
-                  <Mail className="h-4 w-4" />
-                  {ci.business_email}
-                </a>
-              </li>
-            )}
+            <li>
+              <a
+                href={officialContact.website}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+              >
+                <Globe className="h-4 w-4" />
+                {officialContact.websiteLabel}
+              </a>
+            </li>
 
-            {ci?.phone && (
-              <li>
-                <a
-                  href={`tel:${ci.phone}`}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
-                >
-                  <Phone className="h-4 w-4" />
-                  {ci.phone}
-                </a>
-              </li>
-            )}
+            <li>
+              <a
+                href={`mailto:${businessEmail}`}
+                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+              >
+                <Mail className="h-4 w-4" />
+                {businessEmail}
+              </a>
+            </li>
 
-            {ci?.address && (
-              <li className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                {ci.address}
-              </li>
-            )}
+            <li>
+              <a
+                href={`mailto:${supportEmail}`}
+                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+              >
+                <Mail className="h-4 w-4" />
+                {supportEmail}
+              </a>
+            </li>
+
+            <li>
+              <a
+                href={`tel:${phone.replace(/[^+0-9]/g, "")}`}
+                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+              >
+                <Phone className="h-4 w-4" />
+                {phoneLabel}
+              </a>
+            </li>
+
+            <li className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4" />
+              {address}
+            </li>
           </ul>
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-4">
             <a
               aria-label="Facebook"
               href={facebookUrl}
@@ -173,41 +183,35 @@ export function Footer() {
               <FaFacebook className="h-5 w-5" />
             </a>
 
-            {ci?.instagram_url && (
-              <a
-                aria-label="Instagram"
-                href={ci.instagram_url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-muted-foreground hover:text-brand-red"
-              >
-                <FaInstagram className="h-5 w-5" />
-              </a>
-            )}
+            <a
+              aria-label="Instagram"
+              href={instagramUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-muted-foreground hover:text-brand-red"
+            >
+              <FaInstagram className="h-5 w-5" />
+            </a>
 
-            {ci?.youtube_url && (
-              <a
-                aria-label="YouTube"
-                href={ci.youtube_url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-muted-foreground hover:text-brand-red"
-              >
-                <FaYoutube className="h-5 w-5" />
-              </a>
-            )}
+            <a
+              aria-label="YouTube"
+              href={youtubeUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-muted-foreground hover:text-brand-red"
+            >
+              <FaYoutube className="h-5 w-5" />
+            </a>
 
-            {ci?.whatsapp && (
-              <a
-                aria-label="WhatsApp"
-                href={`https://wa.me/${ci.whatsapp.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="text-muted-foreground hover:text-brand-green"
-              >
-                <FaWhatsapp className="h-5 w-5" />
-              </a>
-            )}
+            <a
+              aria-label="WhatsApp"
+              href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-muted-foreground hover:text-brand-green"
+            >
+              <FaWhatsapp className="h-5 w-5" />
+            </a>
           </div>
         </div>
       </div>
@@ -219,4 +223,4 @@ export function Footer() {
       </div>
     </footer>
   );
-                }
+}
