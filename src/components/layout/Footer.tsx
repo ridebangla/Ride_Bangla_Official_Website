@@ -3,7 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/site/Logo";
 import { FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
-import { Mail, Phone, MapPin, Globe, Headphones, ShieldCheck } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Headphones,
+  ShieldCheck,
+  ArrowRight,
+  Link2,
+  LifeBuoy,
+} from "lucide-react";
 
 const officialContact = {
   website: "https://ridebangla.bd",
@@ -18,6 +28,57 @@ const officialContact = {
   youtubeUrl: "https://www.youtube.com/@ridebangla-0",
   address: "Faridpur, Bangladesh",
 };
+
+const quickLinks = [
+  { label: "About", to: "/about" },
+  { label: "Services", to: "/services" },
+  { label: "Apps", to: "/apps" },
+  { label: "Updates", to: "/updates" },
+];
+
+const supportLinks = [
+  { label: "Help Center", to: "/help-center" },
+  { label: "Contact", to: "/contact" },
+  { label: "Privacy Policy", to: "/privacy-policy" },
+  { label: "Terms & Conditions", to: "/terms-and-conditions" },
+  { label: "Cookie Policy", to: "/cookie-policy" },
+];
+
+function FooterCard({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-3xl border border-border/80 bg-background/95 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-green-soft text-brand-green">
+          {icon}
+        </span>
+        <h3 className="text-lg font-extrabold text-foreground">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function FooterLink({ to, label }: { to: string; label: string }) {
+  return (
+    <li>
+      <Link
+        to={to}
+        className="group flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-brand-green-soft hover:text-brand-green"
+      >
+        <span>{label}</span>
+        <ArrowRight className="h-4 w-4 opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
+      </Link>
+    </li>
+  );
+}
 
 export function Footer() {
   const { data: ci } = useQuery({
@@ -44,120 +105,77 @@ export function Footer() {
   const address = ci?.address || officialContact.address;
 
   return (
-    <footer className="mt-16 border-t border-border bg-soft-bg">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
-        <div className="md:col-span-1">
+    <footer className="mt-16 border-t border-border bg-gradient-to-b from-brand-green-soft/40 to-background">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr]">
+        <div className="rounded-3xl border border-border/80 bg-background/95 p-6 shadow-sm">
           <Link
             to="/"
             className="flex items-center gap-3"
             aria-label="Ride Bangla home"
           >
-            <Logo className="h-12 w-12 object-contain drop-shadow-sm" />
+            <Logo className="h-14 w-14 object-contain drop-shadow-sm" />
             <div className="min-w-0">
-              <span className="block text-lg font-bold leading-tight text-foreground">
+              <span className="block text-xl font-extrabold leading-tight text-foreground">
                 Ride Bangla
               </span>
-              <span className="text-xs font-semibold uppercase tracking-wider text-brand-green">
+              <span className="text-xs font-bold uppercase tracking-wider text-brand-green">
                 Bangladesh Digital Ecosystem
               </span>
             </div>
           </Link>
 
-          <p className="mt-4 max-w-sm text-base leading-7 text-muted-foreground">
+          <p className="mt-5 text-base leading-7 text-muted-foreground">
             Ride Bangla is building Bangladesh&apos;s trusted digital ecosystem
             for Food Delivery, Courier Services, customers, partners, riders and
             future digital solutions.
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-green-soft px-3 py-1 text-xs font-semibold text-brand-green">
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-soft px-3 py-1.5 text-xs font-bold text-brand-green">
               <ShieldCheck className="h-3.5 w-3.5" />
               Food Active
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-green-soft px-3 py-1 text-xs font-semibold text-brand-green">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-soft px-3 py-1.5 text-xs font-bold text-brand-green">
               <ShieldCheck className="h-3.5 w-3.5" />
               Courier Active
             </span>
           </div>
         </div>
 
-        <div>
-          <h3 className="mb-3 text-sm font-semibold">Quick Links</h3>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/about" className="text-muted-foreground hover:text-brand-green">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/services" className="text-muted-foreground hover:text-brand-green">
-                Services
-              </Link>
-            </li>
-            <li>
-              <Link to="/apps" className="text-muted-foreground hover:text-brand-green">
-                Apps
-              </Link>
-            </li>
-            <li>
-              <Link to="/updates" className="text-muted-foreground hover:text-brand-green">
-                Updates
-              </Link>
-            </li>
+        <FooterCard icon={<Link2 className="h-5 w-5" />} title="Quick Links">
+          <ul className="space-y-1">
+            {quickLinks.map((item) => (
+              <FooterLink key={item.to} to={item.to} label={item.label} />
+            ))}
           </ul>
-        </div>
+        </FooterCard>
 
-        <div>
-          <h3 className="mb-3 text-sm font-semibold">Support</h3>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/help-center" className="text-muted-foreground hover:text-brand-green">
-                Help Center
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className="text-muted-foreground hover:text-brand-green">
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link to="/privacy-policy" className="text-muted-foreground hover:text-brand-green">
-                Privacy Policy
-              </Link>
-            </li>
-            <li>
-              <Link to="/terms-and-conditions" className="text-muted-foreground hover:text-brand-green">
-                Terms & Conditions
-              </Link>
-            </li>
-            <li>
-              <Link to="/cookie-policy" className="text-muted-foreground hover:text-brand-green">
-                Cookie Policy
-              </Link>
-            </li>
+        <FooterCard icon={<LifeBuoy className="h-5 w-5" />} title="Support">
+          <ul className="space-y-1">
+            {supportLinks.map((item) => (
+              <FooterLink key={item.to} to={item.to} label={item.label} />
+            ))}
           </ul>
 
           <Link
             to="/help-center"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-brand-green/20 bg-background px-3 py-2 text-sm font-semibold text-brand-green shadow-sm transition hover:bg-brand-green-soft"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-green px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <Headphones className="h-4 w-4" />
             Get Help
           </Link>
-        </div>
+        </FooterCard>
 
-        <div>
-          <h3 className="mb-3 text-sm font-semibold">Connect</h3>
-
+        <FooterCard icon={<Globe className="h-5 w-5" />} title="Connect">
           <ul className="space-y-2 text-sm">
             <li>
               <a
                 href={officialContact.website}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+                className="flex items-center gap-2 break-all text-muted-foreground transition hover:text-brand-green"
               >
-                <Globe className="h-4 w-4" />
+                <Globe className="h-4 w-4 shrink-0" />
                 {officialContact.websiteLabel}
               </a>
             </li>
@@ -165,9 +183,9 @@ export function Footer() {
             <li>
               <a
                 href={`mailto:${businessEmail}`}
-                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+                className="flex items-center gap-2 break-all text-muted-foreground transition hover:text-brand-green"
               >
-                <Mail className="h-4 w-4" />
+                <Mail className="h-4 w-4 shrink-0" />
                 {businessEmail}
               </a>
             </li>
@@ -175,9 +193,9 @@ export function Footer() {
             <li>
               <a
                 href={`mailto:${supportEmail}`}
-                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+                className="flex items-center gap-2 break-all text-muted-foreground transition hover:text-brand-green"
               >
-                <Mail className="h-4 w-4" />
+                <Mail className="h-4 w-4 shrink-0" />
                 {supportEmail}
               </a>
             </li>
@@ -185,64 +203,46 @@ export function Footer() {
             <li>
               <a
                 href={`tel:${phone.replace(/[^+0-9]/g, "")}`}
-                className="flex items-center gap-2 text-muted-foreground hover:text-brand-green"
+                className="flex items-center gap-2 text-muted-foreground transition hover:text-brand-green"
               >
-                <Phone className="h-4 w-4" />
+                <Phone className="h-4 w-4 shrink-0" />
                 {phoneLabel}
               </a>
             </li>
 
             <li className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-4 w-4 shrink-0" />
               {address}
             </li>
           </ul>
 
-          <div className="mt-4 flex items-center gap-3">
-            <a
-              aria-label="Facebook"
-              href={facebookUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm ring-1 ring-border transition hover:-translate-y-0.5 hover:text-brand-green hover:shadow-md"
-            >
-              <FaFacebook className="h-5 w-5" />
-            </a>
-
-            <a
-              aria-label="Instagram"
-              href={instagramUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm ring-1 ring-border transition hover:-translate-y-0.5 hover:text-brand-red hover:shadow-md"
-            >
-              <FaInstagram className="h-5 w-5" />
-            </a>
-
-            <a
-              aria-label="YouTube"
-              href={youtubeUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm ring-1 ring-border transition hover:-translate-y-0.5 hover:text-brand-red hover:shadow-md"
-            >
-              <FaYoutube className="h-5 w-5" />
-            </a>
-
-            <a
-              aria-label="WhatsApp"
-              href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground shadow-sm ring-1 ring-border transition hover:-translate-y-0.5 hover:text-brand-green hover:shadow-md"
-            >
-              <FaWhatsapp className="h-5 w-5" />
-            </a>
+          <div className="mt-5 flex items-center gap-3">
+            {[
+              { label: "Facebook", href: facebookUrl, icon: <FaFacebook /> },
+              { label: "Instagram", href: instagramUrl, icon: <FaInstagram /> },
+              { label: "YouTube", href: youtubeUrl, icon: <FaYoutube /> },
+              {
+                label: "WhatsApp",
+                href: `https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`,
+                icon: <FaWhatsapp />,
+              },
+            ].map((social) => (
+              <a
+                key={social.label}
+                aria-label={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-green-soft text-lg text-brand-green shadow-sm ring-1 ring-brand-green/15 transition hover:-translate-y-1 hover:bg-brand-green hover:text-white hover:shadow-md"
+              >
+                {social.icon}
+              </a>
+            ))}
           </div>
-        </div>
+        </FooterCard>
       </div>
 
-      <div className="border-t border-border bg-background">
+      <div className="border-t border-border bg-background/90">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
           <span>© 2026 Ride Bangla. All rights reserved.</span>
           <span>Founded in Faridpur, Bangladesh.</span>
