@@ -55,12 +55,17 @@ function FooterCard({
   children: ReactNode;
 }) {
   return (
-    <div className="h-full rounded-3xl border border-border/80 bg-background/95 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      <div className="mb-4 flex items-center gap-3">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-green-soft text-brand-green">
+    <div className="flex h-full min-h-[230px] flex-col rounded-3xl border border-border/80 bg-background/95 p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:border-brand-green/25 hover:shadow-xl">
+      <div className="mb-5 flex items-center gap-3">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-green-soft text-brand-green shadow-sm">
           {icon}
         </span>
-        <h3 className="text-lg font-extrabold text-foreground">{title}</h3>
+        <div>
+          <h3 className="text-xl font-extrabold leading-tight text-foreground">
+            {title}
+          </h3>
+          <span className="mt-2 block h-1 w-10 rounded-full bg-brand-green" />
+        </div>
       </div>
       {children}
     </div>
@@ -72,7 +77,7 @@ function FooterLink({ to, label }: { to: string; label: string }) {
     <li>
       <Link
         to={to}
-        className="group flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-brand-green-soft hover:text-brand-green"
+        className="group flex items-center justify-between rounded-2xl px-3 py-3 text-base font-semibold text-muted-foreground transition hover:bg-brand-green-soft hover:text-brand-green"
       >
         <span>{label}</span>
         <ArrowRight className="h-4 w-4 opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
@@ -106,9 +111,9 @@ export function Footer() {
   const address = ci?.address || officialContact.address;
 
   return (
-    <footer className="mt-16 border-t border-border bg-gradient-to-b from-brand-green-soft/50 via-background to-background">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr]">
-        <div className="h-full rounded-3xl border border-border/80 bg-background/95 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <footer className="mt-16 border-t border-brand-green/10 bg-gradient-to-b from-brand-green-soft via-background to-background">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-12 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr]">
+        <div className="flex h-full min-h-[230px] flex-col rounded-3xl border border-border/80 bg-background/95 p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:border-brand-green/25 hover:shadow-xl">
           <Link
             to="/"
             className="flex items-center gap-3"
@@ -131,7 +136,7 @@ export function Footer() {
             future digital solutions.
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-auto flex flex-wrap gap-2 pt-5">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-soft px-3 py-1.5 text-xs font-bold text-brand-green">
               <ShieldCheck className="h-3.5 w-3.5" />
               Food Active
@@ -160,7 +165,7 @@ export function Footer() {
 
           <Link
             to="/help-center"
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-green px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="mt-auto flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-green px-4 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-brand-green-dark hover:shadow-lg"
           >
             <Headphones className="h-4 w-4" />
             Get Help
@@ -168,7 +173,7 @@ export function Footer() {
         </FooterCard>
 
         <FooterCard icon={<Globe className="h-5 w-5" />} title="Connect">
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2.5 text-sm">
             <li>
               <a
                 href={officialContact.website}
@@ -217,7 +222,7 @@ export function Footer() {
             </li>
           </ul>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          <div className="mt-auto flex flex-wrap items-center gap-3 pt-5">
             {[
               { label: "Facebook", href: facebookUrl, icon: <FaFacebook /> },
               { label: "Instagram", href: instagramUrl, icon: <FaInstagram /> },
@@ -243,7 +248,7 @@ export function Footer() {
         </FooterCard>
       </div>
 
-      <div className="border-t border-border bg-background/90">
+      <div className="border-t border-border bg-background/95">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
           <span>© 2026 Ride Bangla. All rights reserved.</span>
           <span>Founded in Faridpur, Bangladesh.</span>
@@ -251,4 +256,4 @@ export function Footer() {
       </div>
     </footer>
   );
-              }
+      }
