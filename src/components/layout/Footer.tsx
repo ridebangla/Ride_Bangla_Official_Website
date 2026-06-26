@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,12 +50,12 @@ function FooterCard({
   title,
   children,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-border/80 bg-background/95 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="h-full rounded-3xl border border-border/80 bg-background/95 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
       <div className="mb-4 flex items-center gap-3">
         <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-green-soft text-brand-green">
           {icon}
@@ -105,9 +106,9 @@ export function Footer() {
   const address = ci?.address || officialContact.address;
 
   return (
-    <footer className="mt-16 border-t border-border bg-gradient-to-b from-brand-green-soft/40 to-background">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr]">
-        <div className="rounded-3xl border border-border/80 bg-background/95 p-6 shadow-sm">
+    <footer className="mt-16 border-t border-border bg-gradient-to-b from-brand-green-soft/50 via-background to-background">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr]">
+        <div className="h-full rounded-3xl border border-border/80 bg-background/95 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
           <Link
             to="/"
             className="flex items-center gap-3"
@@ -216,7 +217,7 @@ export function Footer() {
             </li>
           </ul>
 
-          <div className="mt-5 flex items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             {[
               { label: "Facebook", href: facebookUrl, icon: <FaFacebook /> },
               { label: "Instagram", href: instagramUrl, icon: <FaInstagram /> },
@@ -250,4 +251,4 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+              }
