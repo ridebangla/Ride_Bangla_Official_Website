@@ -136,24 +136,24 @@ const fallbackTeamMembers: TeamMember[] = [
   {
     id: "md-enamul-seddik",
     name: "MD Enamul Seddik",
-    title: "Founder, Main Creator & Project Builder",
+    title: "Co-Founder & CEO",
     photo_url: "/assets/founder-enamul.png",
-    facebook_url: null,
-    instagram_url: null,
+    facebook_url: "https://www.facebook.com/share/14iDKweDHqr/",
+    instagram_url: "https://www.instagram.com/ena.mul_?igsh=eGNvNm10aDc0dWF6",
     sort_order: 1,
     bio:
-      "MD Enamul Seddik is the founder and main creator behind Ride Bangla. He has planned the core idea, business direction, customer experience, app flow, website structure and the full connected ecosystem concept. From the main website to the Customer App, Rider App, Partner App and Admin Console direction, he has carried the project forward with his own vision, effort and hands-on work. His goal is to build Ride Bangla as a trusted Bangladesh-based digital ecosystem for Food Delivery, Courier and future services.",
+      "MD Enamul Seddik is the Co-Founder & CEO of Ride Bangla and the main driving force behind the company’s digital ecosystem. From the earliest idea to the current platform, he has led the business concept, product planning, website direction, app workflow, customer experience and full ecosystem structure. The Ride Bangla Customer App, Rider App, Partner App, Admin Console, official website and future Ride Bangla Pay vision have all been shaped through his planning, technical direction, continuous effort and hands-on work. Starting from zero, he has worked to turn Ride Bangla from an idea into a real Bangladesh-based digital service platform focused on Food Delivery, Courier and future connected services.",
   },
   {
     id: "md-emon-seddik",
     name: "MD Emon Seddik",
-    title: "Operations, Social Updates & Delivery Coordination",
+    title: "Co-Founder",
     photo_url: null,
-    facebook_url: null,
+    facebook_url: "https://www.facebook.com/share/14gWYs5XrYE/",
     instagram_url: null,
     sort_order: 2,
     bio:
-      "MD Emon Seddik plays an important role in Ride Bangla operations. He actively supports Facebook and WhatsApp updates, communicates with customers and helps complete delivery-related work through WhatsApp and regular coordination. The Ride Bangla concept is shaped by both of them, while the app, website, product idea and ecosystem execution are led by MD Enamul Seddik.",
+      "MD Emon Seddik is the Co-Founder of Ride Bangla and plays an important role in keeping the business active at the field and communication level. He supports daily operations through Facebook and WhatsApp, communicates with customers, helps coordinate delivery work and keeps the service moving through direct communication. While MD Enamul Seddik leads the app, website, business concept, product direction and ecosystem development, MD Emon Seddik supports the operational side and helps keep Ride Bangla running in real customer and delivery activities.",
   },
 ];
 
@@ -191,13 +191,20 @@ const fallbackFaqs: FaqItem[] = [
 function timestampToString(value: unknown): string | null {
   if (!value) return null;
   if (typeof value === "string") return value;
-  if (typeof value === "object" && "toDate" in value && typeof value.toDate === "function") {
+  if (
+    typeof value === "object" &&
+    "toDate" in value &&
+    typeof value.toDate === "function"
+  ) {
     return value.toDate().toISOString();
   }
   return null;
 }
 
-function normalizeUpdate(id: string, raw: Record<string, unknown>): WebsiteUpdate {
+function normalizeUpdate(
+  id: string,
+  raw: Record<string, unknown>
+): WebsiteUpdate {
   return {
     id,
     title: String(raw.title || "Ride Bangla Update"),
@@ -216,12 +223,21 @@ function normalizeUpdate(id: string, raw: Record<string, unknown>): WebsiteUpdat
   };
 }
 
-async function getCollectionDocs<T>(collectionName: string, queryBuilder: () => ReturnType<typeof query>, fallback: T[]) {
+async function getCollectionDocs<T>(
+  collectionName: string,
+  queryBuilder: () => ReturnType<typeof query>,
+  fallback: T[]
+) {
   if (!firebaseDb) return fallback;
 
   try {
     const snapshot = await getDocs(queryBuilder());
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as T[];
+    const docs = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as T[];
+
+    return docs.length > 0 ? docs : fallback;
   } catch (error) {
     console.warn(`[Firebase] Could not load ${collectionName}`, error);
     return fallback;
@@ -232,7 +248,9 @@ export async function getHomeContent(): Promise<HomeContent | null> {
   if (!firebaseDb) return null;
 
   try {
-    const snapshot = await getDocs(query(collection(firebaseDb, "homepage_content"), limitDocs(1)));
+    const snapshot = await getDocs(
+      query(collection(firebaseDb, "homepage_content"), limitDocs(1))
+    );
     const doc = snapshot.docs[0];
     if (!doc) return null;
     return { id: doc.id, ...doc.data() } as HomeContent;
@@ -242,7 +260,9 @@ export async function getHomeContent(): Promise<HomeContent | null> {
   }
 }
 
-export async function getWebsiteUpdates(maxItems?: number): Promise<WebsiteUpdate[]> {
+export async function getWebsiteUpdates(
+  maxItems?: number
+): Promise<WebsiteUpdate[]> {
   if (!firebaseDb) return [];
 
   try {
@@ -253,7 +273,11 @@ export async function getWebsiteUpdates(maxItems?: number): Promise<WebsiteUpdat
 
     const snapshot = await getDocs(
       maxItems
-        ? query(collection(firebaseDb, "website_updates"), ...constraints, limitDocs(maxItems))
+        ? query(
+            collection(firebaseDb, "website_updates"),
+            ...constraints,
+            limitDocs(maxItems)
+          )
         : query(collection(firebaseDb, "website_updates"), ...constraints)
     );
 
@@ -278,7 +302,11 @@ export async function saveWebsiteSubscriber(email: string) {
 export async function getAppStatus(): Promise<AppStatus[]> {
   return getCollectionDocs<AppStatus>(
     "website_app_status",
-    () => query(collection(firebaseDb!, "website_app_status"), orderBy("sort_order", "asc")),
+    () =>
+      query(
+        collection(firebaseDb!, "website_app_status"),
+        orderBy("sort_order", "asc")
+      ),
     fallbackApps
   );
 }
@@ -286,7 +314,11 @@ export async function getAppStatus(): Promise<AppStatus[]> {
 export async function getTeamMembers(): Promise<TeamMember[]> {
   const members = await getCollectionDocs<TeamMember>(
     "website_team_members",
-    () => query(collection(firebaseDb!, "website_team_members"), orderBy("sort_order", "asc")),
+    () =>
+      query(
+        collection(firebaseDb!, "website_team_members"),
+        orderBy("sort_order", "asc")
+      ),
     fallbackTeamMembers
   );
 
@@ -312,7 +344,9 @@ export async function submitWebsiteContact(input: {
   source: string;
 }) {
   if (!firebaseDb) {
-    throw new Error("Contact system is not configured yet. Please use WhatsApp or email support@ridebangla.bd.");
+    throw new Error(
+      "Contact system is not configured yet. Please use WhatsApp or email support@ridebangla.bd."
+    );
   }
 
   await addDoc(collection(firebaseDb, "website_contact_messages"), {
@@ -326,7 +360,9 @@ export async function getContactInfo(): Promise<ContactInfo | null> {
   if (!firebaseDb) return null;
 
   try {
-    const snapshot = await getDocs(query(collection(firebaseDb, "contact_info"), limitDocs(1)));
+    const snapshot = await getDocs(
+      query(collection(firebaseDb, "contact_info"), limitDocs(1))
+    );
     const doc = snapshot.docs[0];
     if (!doc) return null;
     return { id: doc.id, ...doc.data() } as ContactInfo;
@@ -341,7 +377,10 @@ export async function countUpdateLikes(updateId: string) {
 
   try {
     const snapshot = await getDocs(
-      query(collection(firebaseDb, "website_update_likes"), where("update_id", "==", updateId))
+      query(
+        collection(firebaseDb, "website_update_likes"),
+        where("update_id", "==", updateId)
+      )
     );
     return snapshot.size;
   } catch {
@@ -391,4 +430,4 @@ export async function submitUpdateComment(input: {
     status: "pending",
     created_at: serverTimestamp(),
   });
-}
+    }
