@@ -57,29 +57,28 @@ type TeamMember = {
   sort_order: number | null;
 };
 
-
 const fallbackLeadership: TeamMember[] = [
   {
     id: "md-enamul-seddik",
     name: "MD Enamul Seddik",
-    title: "Founder, Main Creator & Project Builder",
+    title: "Co-Founder & CEO",
     photo_url: "/assets/founder-enamul.png",
-    facebook_url: null,
-    instagram_url: null,
+    facebook_url: "https://www.facebook.com/share/14iDKweDHqr/",
+    instagram_url: "https://www.instagram.com/ena.mul_?igsh=eGNvNm10aDc0dWF6",
     sort_order: 1,
     bio:
-      "MD Enamul Seddik is the founder, main creator and hands-on builder behind Ride Bangla. He has planned the full project concept, business direction, website structure, customer experience, app flow and connected ecosystem. The Ride Bangla Customer App, Rider App, Partner App, Admin Console and website direction have been shaped and carried forward through his own vision, idea, planning and continuous work. His goal is to build Ride Bangla as a trusted Bangladesh-based digital ecosystem for Food Delivery, Courier and future services.",
+      "MD Enamul Seddik is the Co-Founder & CEO of Ride Bangla and leads the company's product vision, technology direction and long-term strategy. From the earliest concept, he has been responsible for planning the platform architecture, designing the user experience and guiding the development of the Ride Bangla Customer App, Rider App, Partner App, Admin Console and official website. He has also led the overall business model, feature planning, service workflows and future roadmap for the Ride Bangla ecosystem. Starting from the ground up, his work has focused on building a reliable digital platform for Bangladesh that can grow from Food Delivery and Courier into a broader ecosystem of connected digital services while maintaining quality, consistency and a long-term vision.",
   },
   {
     id: "md-emon-seddik",
     name: "MD Emon Seddik",
-    title: "Operations, Social Updates & Delivery Coordination",
+    title: "Co-Founder",
     photo_url: null,
-    facebook_url: null,
+    facebook_url: "https://www.facebook.com/share/14gWYs5XrYE/",
     instagram_url: null,
     sort_order: 2,
     bio:
-      "MD Emon Seddik plays an important operational role in Ride Bangla. He actively supports Facebook and WhatsApp updates, keeps communication moving and helps complete delivery-related work through WhatsApp coordination. The Ride Bangla concept is shaped by both MD Enamul Seddik and MD Emon Seddik, while the app, website, product idea and ecosystem execution are led by MD Enamul Seddik.",
+      "MD Emon Seddik is the Co-Founder of Ride Bangla and plays a key role in day-to-day operations. He works directly with customers and delivery activities through Facebook and WhatsApp, helping coordinate communications and operational tasks that keep the service running. While MD Enamul Seddik leads the platform's product, technology and business direction, MD Emon Seddik supports the operational side by helping maintain customer communication and delivery coordination as the company continues to grow.",
   },
 ];
 
@@ -515,4 +514,4 @@ function InfoRow({
       {content}
     </a>
   );
-}
+  }
