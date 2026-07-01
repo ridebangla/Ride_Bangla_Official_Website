@@ -13,6 +13,7 @@ const STATIC_PATHS: Array<{ path: string; changefreq?: string; priority?: string
   { path: "/contact", changefreq: "yearly", priority: "0.6" },
   { path: "/privacy-policy", changefreq: "yearly", priority: "0.3" },
   { path: "/terms-and-conditions", changefreq: "yearly", priority: "0.3" },
+  { path: "/data-deletion", changefreq: "yearly", priority: "0.3" },
   { path: "/cookie-policy", changefreq: "yearly", priority: "0.3" },
 ];
 
@@ -27,7 +28,9 @@ export const Route = createFileRoute("/sitemap.xml")({
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,
-          ].filter(Boolean).join("\n"),
+          ]
+            .filter(Boolean)
+            .join("\n"),
         );
 
         const xml = [
