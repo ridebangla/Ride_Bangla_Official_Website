@@ -1,0 +1,83 @@
+name: Unpack Ride Bangla Official Website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Ride_Bangla_Official_Website.zip"
+      - ".github/workflows/eas-build.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify ZIP
+        run: |
+          if [ ! -f "Ride_Bangla_Official_Website.zip" ]; then
+            echo "Ride_Bangla_Official_Website.zip not found!"
+            exit 1
+          fi
+
+      - name: Install rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync unzip
+
+      - name: Extract ZIP
+        run: |
+          rm -rf extracted
+          mkdir extracted
+          unzip -o Ride_Bangla_Official_Website.zip -d extracted
+
+      - name: Detect Root Folder
+        id: detect
+        run: |
+          ROOT=$(find extracted -mindepth 1 -maxdepth 1 -type d | head -n 1)
+          if [ -z "$ROOT" ]; then
+            ROOT="extracted"
+          fi
+          echo "root=$ROOT" >> $GITHUB_OUTPUT
+
+      - name: Copy Files Into Repository
+        run: |
+          rsync -av --delete \
+            --exclude=".git" \
+            --exclude=".github" \
+            --exclude="Ride_Bangla_Official_Website.zip" \
+            "${{ steps.detect.outputs.root }}/" ./
+
+      - name: Remove Temporary Files
+        run: |
+          rm -rf extracted
+          rm -f Ride_Bangla_Official_Website.zip
+
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            exit 0
+          fi
+
+          git commit -m "Auto extract Ride Bangla Official Website"
+
+      - name: Push Changes
+        run: |
+          git push
