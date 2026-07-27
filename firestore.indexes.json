@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "website_updates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "published", "order": "ASCENDING" },
+        { "fieldPath": "published_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "website_update_comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "update_id", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

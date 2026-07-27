@@ -1,0 +1,21 @@
+Ride Bangla Official Website — Production Fix Round 28
+
+Scope:
+- Only confirmed code/configuration defects were corrected.
+- App logos, Play Store URLs, Firebase/API credentials, design, content, dependencies and business data were not changed.
+
+Fixed files:
+1. src/routeTree.gen.ts
+   - Registered the existing /delete-account source route in the generated route tree.
+   - Added import, route update, path/type maps, module declaration and root child registration.
+
+2. storage.rules
+   - Separated create/update validation from delete permission.
+   - Admins can now delete obsolete website media.
+   - Existing 10 MB size and image/video/PDF content-type restrictions remain for create/update.
+
+Verification:
+- delete-account source route path matches generated tree.
+- routeTree contains all required DeleteAccount registrations.
+- Storage create/update/delete rule paths verified.
+- ZIP integrity test passed.
