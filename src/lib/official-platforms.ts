@@ -9,7 +9,7 @@ export const OFFICIAL_PLATFORMS = [
     key: "partner",
     name: "Ride Bangla Partner",
     description: "Business and merchant platform for Ride Bangla partners.",
-    url: "https://patnar.ridebangla.bd",
+    url: "https://patner.ridebangla.bd",
   },
   {
     key: "rider",
