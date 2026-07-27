@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - Ride_Bangla_Official_Website.zip
-      - .github/workflows/eas-build.yml
+      - "Ride_Bangla_Official_Website.zip"
+      - ".github/workflows/eas-build.yml"
 
   workflow_dispatch:
 
@@ -26,13 +26,4 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: Verify ZIP File
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          ZIP_FILE=$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip
-
-          if [ ! -
+         
