@@ -1,1 +1,0 @@
-UPDATE public.team_members SET photo_url = '/__l5e/assets-v1/26c73424-427c-4f0a-a8ae-0e09beefd43d/enamul-seddik.jpg' WHERE id = 'af24473c-8496-478c-b76c-a0009831e4ae';
