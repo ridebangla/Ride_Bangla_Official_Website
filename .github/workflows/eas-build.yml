@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "Ride_Bangla_Official_Website.zip"
-      - ".github/workflows/eas-build.yml"
+      - Ride_Bangla_Official_Website.zip
+      - .github/workflows/eas-build.yml
 
   workflow_dispatch:
 
@@ -33,72 +33,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          ZIP_FILE="Ride_Bangla_Official_Website.zip"
+          ZIP_FILE=$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip
 
-          if [ ! -f "$ZIP_FILE" ]; then
-            echo "::error::$ZIP_FILE was not found."
-            exit 1
-          fi
-
-          unzip -t "$ZIP_FILE"
-
-      - name: Extract ZIP Outside Repository
-        id: extract
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          ZIP_FILE="$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
-          EXTRACT_DIR="$RUNNER_TEMP/ride-bangla-official-website"
-
-          rm -rf "$EXTRACT_DIR"
-          mkdir -p "$EXTRACT_DIR"
-
-          unzip -q -o "$ZIP_FILE" -d "$EXTRACT_DIR"
-
-          shopt -s dotglob nullglob
-          ITEMS=("$EXTRACT_DIR"/*)
-
-          if [ "${#ITEMS[@]}" -eq 0 ]; then
-            echo "::error::ZIP is empty."
-            exit 1
-          fi
-
-          SOURCE_DIR="$EXTRACT_DIR"
-
-          if [ "${#ITEMS[@]}" -eq 1 ] && [ -d "${ITEMS[0]}" ]; then
-            SOURCE_DIR="${ITEMS[0]}"
-          fi
-
-          echo "source_dir=$SOURCE_DIR" >> "$GITHUB_OUTPUT"
-
-      - name: Copy Files Into Repository
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          rsync -a --delete \
-            --exclude=".git/" \
-            --exclude=".github/" \
-            --exclude="Ride_Bangla_Official_Website.zip" \
-            "${{ steps.extract.outputs.source_dir }}/" \
-            "$GITHUB_WORKSPACE/"
-
-      - name: Remove Uploaded ZIP
-        shell: bash
-        run: |
-          rm -f "$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
-
-      - name: Verify Project
-        shell: bash
-        run: |
-          if [ ! -f "$GITHUB_WORKSPACE/package.json" ]; then
-            echo "::error::package.json not found."
-            exit 1
-          fi
-
-      - name: Commit Changes
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.n
+          if [ ! -
