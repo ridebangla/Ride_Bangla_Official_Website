@@ -13,6 +13,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: unpack-ride-bangla-official-website
+  cancel-in-progress: false
+
 jobs:
   unpack:
     if: github.actor != 'github-actions[bot]'
@@ -24,60 +28,77 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify ZIP
+      - name: Verify ZIP File
+        shell: bash
         run: |
-          if [ ! -f "Ride_Bangla_Official_Website.zip" ]; then
-            echo "Ride_Bangla_Official_Website.zip not found!"
+          set -euo pipefail
+
+          ZIP_FILE="Ride_Bangla_Official_Website.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "::error::$ZIP_FILE was not found."
             exit 1
           fi
 
-      - name: Install rsync
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y rsync unzip
+          unzip -t "$ZIP_FILE"
 
-      - name: Extract ZIP
+      - name: Extract ZIP Outside Repository
+        id: extract
+        shell: bash
         run: |
-          rm -rf extracted
-          mkdir extracted
-          unzip -o Ride_Bangla_Official_Website.zip -d extracted
+          set -euo pipefail
 
-      - name: Detect Root Folder
-        id: detect
-        run: |
-          ROOT=$(find extracted -mindepth 1 -maxdepth 1 -type d | head -n 1)
-          if [ -z "$ROOT" ]; then
-            ROOT="extracted"
+          ZIP_FILE="$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
+          EXTRACT_DIR="$RUNNER_TEMP/ride-bangla-official-website"
+
+          rm -rf "$EXTRACT_DIR"
+          mkdir -p "$EXTRACT_DIR"
+
+          unzip -q -o "$ZIP_FILE" -d "$EXTRACT_DIR"
+
+          shopt -s dotglob nullglob
+          ITEMS=("$EXTRACT_DIR"/*)
+
+          if [ "${#ITEMS[@]}" -eq 0 ]; then
+            echo "::error::ZIP is empty."
+            exit 1
           fi
-          echo "root=$ROOT" >> $GITHUB_OUTPUT
+
+          SOURCE_DIR="$EXTRACT_DIR"
+
+          if [ "${#ITEMS[@]}" -eq 1 ] && [ -d "${ITEMS[0]}" ]; then
+            SOURCE_DIR="${ITEMS[0]}"
+          fi
+
+          echo "source_dir=$SOURCE_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Copy Files Into Repository
+        shell: bash
         run: |
-          rsync -av --delete \
-            --exclude=".git" \
-            --exclude=".github" \
+          set -euo pipefail
+
+          rsync -a --delete \
+            --exclude=".git/" \
+            --exclude=".github/" \
             --exclude="Ride_Bangla_Official_Website.zip" \
-            "${{ steps.detect.outputs.root }}/" ./
+            "${{ steps.extract.outputs.source_dir }}/" \
+            "$GITHUB_WORKSPACE/"
 
-      - name: Remove Temporary Files
+      - name: Remove Uploaded ZIP
+        shell: bash
         run: |
-          rm -rf extracted
-          rm -f Ride_Bangla_Official_Website.zip
+          rm -f "$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
 
-      - name: Commit Changes
+      - name: Verify Project
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add .
-
-          if git diff --cached --quiet; then
-            echo "No changes detected."
-            exit 0
+          if [ ! -f "$GITHUB_WORKSPACE/package.json" ]; then
+            echo "::error::package.json not found."
+            exit 1
           fi
 
-          git commit -m "Auto extract Ride Bangla Official Website"
-
-      - name: Push Changes
+      - name: Commit Changes
+        shell: bash
         run: |
-          git push
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.n
