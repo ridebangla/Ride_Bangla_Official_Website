@@ -35,6 +35,13 @@ export const askHelpAi = createServerFn({ method: "POST" })
       };
     }
 
+    // A hung upstream call keeps the server function open until the edge/
+    // platform itself times out, which comes back to the browser as a
+    // gateway-style 5xx error instead of the graceful message below. An
+    // explicit abort timeout guarantees this handler always resolves.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20_000);
+
     try {
       const contents = [
         ...data.history.map((item) => ({
@@ -54,8 +61,11 @@ export const askHelpAi = createServerFn({ method: "POST" })
             contents,
             generationConfig: { temperature: 0.25, maxOutputTokens: 800 },
           }),
+          signal: controller.signal,
         },
       );
+
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         return {
@@ -81,6 +91,7 @@ export const askHelpAi = createServerFn({ method: "POST" })
 
       return { ok: true as const, answer };
     } catch {
+      clearTimeout(timeoutId);
       return {
         ok: false as const,
         error: "AI support is temporarily unavailable. Please use official Support.",
