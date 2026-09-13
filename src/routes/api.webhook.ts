@@ -1,13 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { generateReply } from "@/lib/bot-brain";
 
 // ── Env vars you must add in Vercel (Project Settings → Environment Variables) ──
-// WEBHOOK_VERIFY_TOKEN   -> any string you invent yourself, e.g. "ridebangla_verify_2026"
-//                            (you'll paste this same value into the Meta App webhook screen)
-// PAGE_ACCESS_TOKEN      -> from Meta App → Messenger → Access Tokens (after linking your Page)
-// WHATSAPP_ACCESS_TOKEN  -> from Meta App → WhatsApp → API Setup (temporary token to start)
-// WHATSAPP_PHONE_NUMBER_ID -> from Meta App → WhatsApp → API Setup ("Phone number ID")
-// These are server-only — never prefix them with VITE_.
+// WEBHOOK_VERIFY_TOKEN        -> any string you invent, e.g. "ridebangla_verify_2026"
+// PAGE_ACCESS_TOKEN           -> Meta App → Messenger → Access Tokens
+// WHATSAPP_ACCESS_TOKEN       -> Meta App → WhatsApp → API Setup
+// WHATSAPP_PHONE_NUMBER_ID    -> Meta App → WhatsApp → API Setup
+// FIREBASE_SERVICE_ACCOUNT_KEY-> Firebase Console → Project Settings → Service accounts
+// GEMINI_API_KEY / GEMINI_MODEL -> already in your .env.example
+// None of these should ever be prefixed with VITE_.
 
 const GRAPH_VERSION = "v21.0";
 
@@ -45,7 +47,6 @@ async function sendWhatsAppReply(toNumber: string, text: string) {
 export const Route = createFileRoute("/api/webhook")({
   server: {
     handlers: {
-      // Meta calls this once, when you click "Verify and Save" on the webhook screen.
       GET: async ({ request }) => {
         const url = new URL(request.url);
         const mode = url.searchParams.get("hub.mode");
@@ -58,7 +59,6 @@ export const Route = createFileRoute("/api/webhook")({
         return new Response("Forbidden", { status: 403 });
       },
 
-      // Every real Messenger / WhatsApp message arrives here.
       POST: async ({ request }) => {
         const body = await request.json();
 
@@ -70,12 +70,9 @@ export const Route = createFileRoute("/api/webhook")({
                 const senderId = event.sender?.id;
                 const text = event.message?.text;
                 if (senderId && text) {
-                  console.log("Messenger message:", senderId, text);
-                  // TODO: replace this line with a call to your AI agent (Gemini)
-                  await sendMessengerReply(
-                    senderId,
-                    "Ride Bangla-তে স্বাগতম! এই মুহূর্তে আমরা টেস্ট মোডে আছি। শীঘ্রই AI সহকারী চালু হবে।",
-                  );
+                  const conversationId = `messenger_${senderId}`;
+                  const reply = await generateReply(conversationId, text);
+                  await sendMessengerReply(senderId, reply);
                 }
               }
             }
@@ -88,12 +85,9 @@ export const Route = createFileRoute("/api/webhook")({
                   const from = msg.from;
                   const text = msg.text?.body;
                   if (from && text) {
-                    console.log("WhatsApp message:", from, text);
-                    // TODO: replace this line with a call to your AI agent (Gemini)
-                    await sendWhatsAppReply(
-                      from,
-                      "Ride Bangla-তে স্বাগতম! এই মুহূর্তে আমরা টেস্ট মোডে আছি। শীঘ্রই AI সহকারী চালু হবে।",
-                    );
+                    const conversationId = `whatsapp_${from}`;
+                    const reply = await generateReply(conversationId, text);
+                    await sendWhatsAppReply(from, reply);
                   }
                 }
               }
