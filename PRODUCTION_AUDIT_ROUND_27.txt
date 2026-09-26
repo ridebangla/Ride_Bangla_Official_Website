@@ -1,0 +1,35 @@
+RIDE BANGLA OFFICIAL WEBSITE — PRODUCTION AUDIT ROUND 27
+Date: 2026-07-27
+
+SCOPE
+- Full source/configuration audit from the newly uploaded ZIP.
+- Help Center and bilingual FAQ data flow.
+- AI chat persistence and server function wiring.
+- Firebase updates, notification bell/read state, media rendering, likes/comments.
+- Legal/Google Play compliance routes, leadership assets, exact official domains, logos, SEO, security and deployment configuration.
+
+CONFIRMED FIXES
+1. Bengali-only FAQ records were silently excluded.
+   The Help Center UI supported bilingual fallback, but getFaqs() required the English question and answer fields. A valid Firestore FAQ containing only question_bn/answer_bn therefore disappeared. The loader now accepts question_en/question, question_bn, answer_en/answer and answer_bn, preserves bilingual values, and safely populates primary fallback fields.
+
+2. Notification read state could lose a recently clicked ID.
+   markRead() and markAllRead() used the render-time readIds closure. Rapid interactions before React committed the prior state could overwrite a newer read ID. Both actions now use functional state updates, deduplicate against the latest state and keep the 200-ID storage bound.
+
+VERIFICATION
+- Strict JSON and JSONC configuration validation: passed.
+- Local TypeScript/TSX import resolution: 0 missing imports.
+- Legal routes and Google Play compliance pages: present.
+- Leadership images: present.
+- Official logo asset: present.
+- Exact customer, patnar, rider, studio and agent subdomains: preserved.
+- No active Lovable/Labebo/Labevo/Supabase or fake/mock/dummy runtime references found.
+- Firestore and Storage rules preserved.
+- ZIP integrity test: passed.
+
+BUILD TEST LIMITATION
+- Node 22 and TypeScript 5.8.3 are available in the execution environment.
+- Full dependency-based typecheck/build could not run because the uploaded source has no node_modules and dependency installation does not complete in this restricted environment. The compiler consequently reports missing vite/client type definitions. A successful Vite/Nitro production build is not claimed.
+
+FILES CHANGED
+- src/lib/website-data.ts
+- src/components/layout/Header.tsx

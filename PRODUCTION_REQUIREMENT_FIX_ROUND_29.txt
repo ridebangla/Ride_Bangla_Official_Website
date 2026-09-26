@@ -1,0 +1,44 @@
+Ride Bangla Official Website — Requirement Alignment Fix (Round 29)
+
+Architecture confirmed:
+- Main central admin: https://admin.ridebangla.bd
+- Official Website contains no separate admin console or admin login.
+- Shared Firebase remains the backend for published website updates and user interaction data.
+
+Fixed in this round:
+1. Leadership is now fully fixed in source code. Firebase team-member loading and override logic were removed.
+2. Homepage corporate hero text is now fixed in source code. homepage_content loading was removed.
+3. Apps/Platforms directory is now fixed in source code. website_app_status loading and dynamic app cards were removed.
+4. FAQ content is now fixed in source code with English/Bangla support. Firestore FAQ loading was removed.
+5. Official contact details are now fixed in source code across Contact, Footer, Help Center and WhatsApp button. contact_info loading was removed.
+6. Firestore rules for the removed stable-content collections were removed.
+7. Public customer platform branding was corrected from “Ride Bangla Customer” to “Ride Bangla”.
+
+Firebase remains used for:
+- website_updates: published update text, images, videos, PDFs/external links, category and timestamps.
+- website_subscribers: newsletter subscriptions.
+- website_contact_messages: user contact submissions.
+- website_update_likes: update reactions.
+- website_update_comments: moderated update comments.
+
+Admin-managed dynamic content:
+- Update title/text/body
+- Update images
+- Update videos
+- Update PDF/external file links
+- Published/unpublished state
+- Update timestamps/category
+
+Code-fixed stable content:
+- Leadership
+- About/mission/vision/core values
+- Official platform directory
+- FAQ
+- Official contact details
+- Homepage corporate hero copy
+
+Verification:
+- No runtime or Firestore Rules references remain for homepage_content, website_app_status, website_team_members or contact_info.
+- No Firestore FAQ loader remains.
+- No separate website admin route/login was introduced.
+- TypeScript compiler could not complete dependency-based checking because vite/client type definitions are unavailable without installed dependencies. No successful full build is claimed.
