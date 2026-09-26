@@ -1,0 +1,126 @@
+name: Unpack Ride Bangla Official Website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Ride_Bangla_Official_Website.zip"
+      - ".github/workflows/eas-build.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify ZIP File
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ZIP_FILE="$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "Ride_Bangla_Official_Website.zip was not found."
+            exit 1
+          fi
+
+          unzip -t "$ZIP_FILE"
+
+      - name: Extract ZIP Outside Repository
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ZIP_FILE="$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
+          EXTRACT_DIR="$RUNNER_TEMP/ride-bangla-official-website"
+
+          rm -rf "$EXTRACT_DIR"
+          mkdir -p "$EXTRACT_DIR"
+
+          unzip -q -o "$ZIP_FILE" -d "$EXTRACT_DIR"
+
+          # The ZIP may or may not contain a single wrapping top-level folder
+          # (e.g. "Ride_Bangla_Official_Website-main/"). Detect that case and
+          # use the inner folder as the real project source automatically.
+          if [ -f "$EXTRACT_DIR/package.json" ]; then
+            SOURCE_DIR="$EXTRACT_DIR"
+          else
+            TOP_LEVEL_ITEMS=$(find "$EXTRACT_DIR" -mindepth 1 -maxdepth 1)
+            TOP_LEVEL_COUNT=$(echo "$TOP_LEVEL_ITEMS" | wc -l)
+
+            if [ "$TOP_LEVEL_COUNT" -eq 1 ] && [ -d "$TOP_LEVEL_ITEMS" ] && [ -f "$TOP_LEVEL_ITEMS/package.json" ]; then
+              SOURCE_DIR="$TOP_LEVEL_ITEMS"
+              echo "Detected wrapping folder: $(basename "$SOURCE_DIR")"
+            else
+              echo "package.json was not found inside the ZIP (checked root and one level deep)."
+              exit 1
+            fi
+          fi
+
+          if [ ! -d "$SOURCE_DIR/src" ]; then
+            echo "src folder was not found inside the ZIP."
+            exit 1
+          fi
+
+          echo "SOURCE_DIR=$SOURCE_DIR" >> "$GITHUB_ENV"
+          echo "ZIP extracted successfully."
+
+      - name: Copy Project Files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rsync -a --delete \
+            --exclude=".git/" \
+            --exclude=".github/" \
+            --exclude="Ride_Bangla_Official_Website.zip" \
+            "$SOURCE_DIR/" \
+            "$GITHUB_WORKSPACE/"
+
+          echo "Project files copied successfully."
+
+      - name: Remove Uploaded ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -f "$GITHUB_WORKSPACE/Ride_Bangla_Official_Website.zip"
+
+      - name: Verify Extracted Project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f "$GITHUB_WORKSPACE/package.json"
+          test -d "$GITHUB_WORKSPACE/src"
+
+          echo "Project verification completed successfully."
+
+      - name: Commit And Push Changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Unpack Ride Bangla Official Website"
+          git push origin HEAD:main
