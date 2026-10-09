@@ -167,11 +167,6 @@ function WriteReviewCard() {
     }
   };
 
-  // Complete mobile redirect sign-in when returning from Google
-  useEffect(() => {
-    handleRedirectResult().catch(() => {});
-  }, []);
-
   const handleSubmit = async () => {
     if (!user) return;
     setError(null);
@@ -308,6 +303,17 @@ export function ReviewsSection() {
   const { reviews, loading, count, average } = useReviews(12);
   const [showForm, setShowForm] = useState(false);
   const roundedAverage = useMemo(() => Math.round(average * 10) / 10, [average]);
+
+  // Complete mobile redirect sign-in when returning from Google.
+  // Must run at section level (always mounted) — WriteReviewCard only mounts
+  // when the form is open, so the redirect result would be lost otherwise.
+  useEffect(() => {
+    handleRedirectResult()
+      .then((user) => {
+        if (user) setShowForm(true); // auto-open form after successful sign-in
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const scriptId = "reviews-structured-data";
