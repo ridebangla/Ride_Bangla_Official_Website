@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   Copy,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { SafeMediaImage } from "@/components/site/SafeMediaImage";
+import { UpdatesSpotlight } from "@/components/site/UpdatesSpotlight";
 import {
   likeUpdate,
   submitUpdateComment,
@@ -25,6 +26,72 @@ import {
 } from "@/lib/realtime-updates";
 import { useLanguage } from "@/context/LanguageContext";
 
+const copy = {
+  en: {
+    headerTitle: "Updates",
+    headerSubtitle: "News and product announcements from the Ride Bangla team.",
+    loadingUpdates: "Loading latest updates...",
+    loadError: "Updates could not be loaded. Please try again later.",
+    emptyUpdates: "No updates yet. Check back soon.",
+    badgeImageVideo: "Image + Video",
+    badgeVideo: "Video",
+    badgeImage: "Image",
+    badgeText: "Text",
+    openVideo: "Open Video",
+    learnMore: "Learn more",
+    likeBtn: "Like",
+    commentBtn: "Comment",
+    shareBtn: "Share",
+    copied: "Copied",
+    nameCommentRequired: "Please write your name and comment.",
+    commentSuccess: "Comment submitted. It will appear after admin approval.",
+    commentError: "Could not submit comment. Please try again.",
+    namePlaceholder: "Your name",
+    emailPlaceholder: "Email (optional)",
+    commentPlaceholder: "Write your comment...",
+    submitting: "Submitting...",
+    submitComment: "Submit Comment",
+    videoNotSupported: "Your browser does not support video playback.",
+    videoUpdate: "Video update",
+    videoDirectLink:
+      "Use the direct link if playback is unavailable in your browser.",
+    shareSuffix: "Ride Bangla Updates",
+  },
+  bn: {
+    headerTitle: "আপডেট",
+    headerSubtitle: "Ride Bangla টিমের খবর ও প্রোডাক্ট ঘোষণা।",
+    loadingUpdates: "সর্বশেষ আপডেট লোড হচ্ছে…",
+    loadError:
+      "আপডেট লোড করা যায়নি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
+    emptyUpdates: "এখনো কোনো আপডেট নেই। শীঘ্রই আবার দেখুন।",
+    badgeImageVideo: "ছবি + ভিডিও",
+    badgeVideo: "ভিডিও",
+    badgeImage: "ছবি",
+    badgeText: "লেখা",
+    openVideo: "ভিডিও খুলুন",
+    learnMore: "আরও জানুন",
+    likeBtn: "লাইক",
+    commentBtn: "কমেন্ট",
+    shareBtn: "শেয়ার",
+    copied: "কপি হয়েছে",
+    nameCommentRequired: "অনুগ্রহ করে আপনার নাম ও কমেন্ট লিখুন।",
+    commentSuccess:
+      "কমেন্ট জমা দেওয়া হয়েছে। অ্যাডমিন অনুমোদনের পর এটি দেখা যাবে।",
+    commentError:
+      "কমেন্ট জমা দেওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    namePlaceholder: "আপনার নাম",
+    emailPlaceholder: "ইমেইল (ঐচ্ছিক)",
+    commentPlaceholder: "আপনার কমেন্ট লিখুন…",
+    submitting: "জমা দেওয়া হচ্ছে…",
+    submitComment: "কমেন্ট জমা দিন",
+    videoNotSupported: "আপনার ব্রাউজার ভিডিও প্লেব্যাক সাপোর্ট করে না।",
+    videoUpdate: "ভিডিও আপডেট",
+    videoDirectLink:
+      "আপনার ব্রাউজারে প্লেব্যাক না চললে সরাসরি লিংক ব্যবহার করুন।",
+    shareSuffix: "Ride Bangla আপডেট",
+  },
+};
+
 export const Route = createFileRoute("/updates")({
   head: () => ({
     meta: [
@@ -32,10 +99,22 @@ export const Route = createFileRoute("/updates")({
       {
         name: "description",
         content:
-          "Latest news, product updates and announcements from Ride Bangla.",
+          "Stay updated with the latest Ride Bangla news, product launches, service announcements, feature updates and company milestones from across Bangladesh.",
       },
+      { property: "og:title", content: "Ride Bangla Updates — Latest News & Announcements" },
+      {
+        property: "og:description",
+        content:
+          "Latest Ride Bangla news, product launches, service announcements and company milestones.",
+      },
+      { property: "og:url", content: "https://ridebangla.bd/updates" },
     ],
-    links: [{ rel: "canonical", href: "https://ridebangla.bd/updates" }],
+    links: [
+      { rel: "canonical", href: "https://ridebangla.bd/updates" },
+      { rel: "alternate", hreflang: "en", href: "https://ridebangla.bd/updates" },
+      { rel: "alternate", hreflang: "bn", href: "https://ridebangla.bd/updates?lang=bn" },
+      { rel: "alternate", hreflang: "x-default", href: "https://ridebangla.bd/updates" },
+    ],
   }),
   component: UpdatesPage,
 });
@@ -64,6 +143,7 @@ function formatUpdateDate(value: string, locale: string) {
 
 function UpdatesPage() {
   const { language, pick } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
   const { updates, loading: isLoading, error } = useRealtimeWebsiteUpdates(100);
 
   useEffect(() => {
@@ -78,25 +158,37 @@ function UpdatesPage() {
   return (
     <SiteLayout>
       <PageHeader
-        title="Updates"
-        subtitle="News and product announcements from the Ride Bangla team."
+        title={t.headerTitle}
+        subtitle={t.headerSubtitle}
       />
 
-      <section className="mx-auto max-w-5xl px-4 py-10">
+      <section className="mx-auto max-w-6xl px-4 py-10">
         {isLoading ? (
           <p className="text-sm text-muted-foreground">
-            Loading latest updates...
+            {t.loadingUpdates}
           </p>
         ) : error ? (
           <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
-            Updates could not be loaded. Please try again later.
+            {t.loadError}
           </p>
         ) : !updates || updates.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No updates yet. Check back soon.
+            {t.emptyUpdates}
           </p>
         ) : (
-          <div className="space-y-8">
+          <>
+            <UpdatesSpotlight
+              updates={updates}
+              language={language}
+              pick={pick}
+              onOpen={(id) => {
+                document
+                  .getElementById(`update-${id}`)
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            />
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-2">
             {updates.map((update) => {
               const updateDate = getUpdateDate(update);
               const formattedUpdateDate = formatUpdateDate(
@@ -125,7 +217,7 @@ function UpdatesPage() {
                             alt={pick(update.title, update.title_bn)}
                             loading="lazy"
                             decoding="async"
-                            className="block h-auto max-h-[80rem] w-full object-contain"
+                            className="block h-48 w-full object-cover sm:h-56"
                           />
                         </div>
                       ) : null}
@@ -146,21 +238,21 @@ function UpdatesPage() {
 
                       <span className="rounded-full bg-brand-green-soft px-3 py-1 text-xs font-semibold text-brand-green">
                         {hasImage && hasVideo
-                          ? "Image + Video"
+                          ? t.badgeImageVideo
                           : hasVideo
-                            ? "Video"
+                            ? t.badgeVideo
                             : hasImage
-                              ? "Image"
-                              : update.media_type || "Text"}
+                              ? t.badgeImage
+                              : update.media_type || t.badgeText}
                       </span>
                     </div>
 
-                    <h2 className="mt-4 text-2xl font-bold leading-snug text-foreground">
+                    <h2 className="mt-4 text-lg font-bold leading-snug text-foreground sm:text-xl">
                       {pick(update.title, update.title_bn)}
                     </h2>
 
                     {(language === "bn" ? update.body_bn || update.excerpt_bn || updateText : updateText) ? (
-                      <div className="mt-4 whitespace-pre-line break-words text-base leading-8 text-muted-foreground">
+                      <div className="mt-3 line-clamp-4 whitespace-pre-line break-words text-sm leading-6 text-muted-foreground">
                         {language === "bn" ? update.body_bn || update.excerpt_bn || updateText : updateText}
                       </div>
                     ) : null}
@@ -182,7 +274,7 @@ function UpdatesPage() {
                             rel="noreferrer noopener"
                             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
                           >
-                            Open Video <ExternalLink className="h-3.5 w-3.5" />
+                            {t.openVideo} <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         ) : null}
 
@@ -193,7 +285,7 @@ function UpdatesPage() {
                             rel="noreferrer noopener"
                             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:underline"
                           >
-                            Learn more <ExternalLink className="h-3.5 w-3.5" />
+                            {t.learnMore} <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         ) : null}
                       </div>
@@ -204,7 +296,8 @@ function UpdatesPage() {
                 </article>
               );
             })}
-          </div>
+            </div>
+          </>
         )}
       </section>
     </SiteLayout>
@@ -212,6 +305,8 @@ function UpdatesPage() {
 }
 
 function UpdateEngagement({ update }: { update: UpdateItem }) {
+  const { language } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [copied, setCopied] = useState(false);
   const [commentName, setCommentName] = useState("");
@@ -244,7 +339,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
       const comment = commentText.trim();
 
       if (!name || !comment) {
-        throw new Error("Please write your name and comment.");
+        throw new Error(t.nameCommentRequired);
       }
 
       await submitUpdateComment({
@@ -258,16 +353,12 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
       setCommentName("");
       setCommentEmail("");
       setCommentText("");
-      setCommentMessage(
-        "Comment submitted. It will appear after admin approval."
-      );
+      setCommentMessage(t.commentSuccess);
       setShowCommentForm(false);
     },
     onError: (error) => {
       setCommentMessage(
-        error instanceof Error
-          ? error.message
-          : "Could not submit comment. Please try again."
+        error instanceof Error ? error.message : t.commentError
       );
     },
   });
@@ -279,7 +370,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
 
   const shareUpdate = async () => {
     const shareUrl = getShareUrl();
-    const shareText = `${update.title} - Ride Bangla Updates`;
+    const shareText = `${update.title} - ${t.shareSuffix}`;
 
     try {
       if (navigator.share) {
@@ -319,7 +410,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
           ) : (
             <Heart className="h-4 w-4" />
           )}
-          Like {likeCount > 0 ? `(${likeCount})` : ""}
+          {t.likeBtn} {likeCount > 0 ? `(${likeCount})` : ""}
         </button>
 
         <button
@@ -328,7 +419,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
           className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand-green hover:text-brand-green"
         >
           <MessageCircle className="h-4 w-4" />
-          Comment {commentCount > 0 ? `(${commentCount})` : ""}
+          {t.commentBtn} {commentCount > 0 ? `(${commentCount})` : ""}
         </button>
 
         <button
@@ -337,7 +428,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
           className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-brand-green hover:text-brand-green"
         >
           {copied ? <Copy className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-          {copied ? "Copied" : "Share"}
+          {copied ? t.copied : t.shareBtn}
         </button>
       </div>
 
@@ -361,7 +452,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
             <input
               value={commentName}
               onChange={(event) => setCommentName(event.target.value)}
-              placeholder="Your name"
+              placeholder={t.namePlaceholder}
               className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-green"
               maxLength={100}
             />
@@ -369,7 +460,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
             <input
               value={commentEmail}
               onChange={(event) => setCommentEmail(event.target.value)}
-              placeholder="Email (optional)"
+              placeholder={t.emailPlaceholder}
               type="email"
               className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-green"
               maxLength={255}
@@ -383,7 +474,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
               event.currentTarget.style.height = "auto";
               event.currentTarget.style.height = `${Math.min(event.currentTarget.scrollHeight, 480)}px`;
             }}
-            placeholder="Write your comment..."
+            placeholder={t.commentPlaceholder}
             className="mt-3 min-h-28 max-h-[30rem] w-full resize-none overflow-y-auto rounded-xl border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand-green"
             maxLength={2000}
           />
@@ -398,7 +489,7 @@ function UpdateEngagement({ update }: { update: UpdateItem }) {
             ) : (
               <Send className="h-4 w-4" />
             )}
-            {commentMutation.isPending ? "Submitting..." : "Submit Comment"}
+            {commentMutation.isPending ? t.submitting : t.submitComment}
           </button>
         </form>
       ) : null}
@@ -429,6 +520,8 @@ function getYouTubeEmbedUrl(videoUrl: string) {
 }
 
 function VideoBlock({ title, videoUrl }: { title: string; videoUrl: string }) {
+  const { language } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
   const youtubeEmbedUrl = getYouTubeEmbedUrl(videoUrl);
 
   return (
@@ -453,7 +546,7 @@ function VideoBlock({ title, videoUrl }: { title: string; videoUrl: string }) {
           className="h-auto max-h-[80rem] min-h-[220px] w-full bg-black object-contain"
         >
           <source src={videoUrl} />
-          Your browser does not support video playback.
+          {t.videoNotSupported}
         </video>
       )}
 
@@ -462,9 +555,9 @@ function VideoBlock({ title, videoUrl }: { title: string; videoUrl: string }) {
           <div className="flex items-start gap-3 text-white">
             <Video className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" />
             <div>
-              <p className="text-sm font-semibold">Video update</p>
+              <p className="text-sm font-semibold">{t.videoUpdate}</p>
               <p className="mt-1 text-xs leading-5 text-white/65">
-                Use the direct link if playback is unavailable in your browser.
+                {t.videoDirectLink}
               </p>
             </div>
           </div>
@@ -473,10 +566,10 @@ function VideoBlock({ title, videoUrl }: { title: string; videoUrl: string }) {
             href={videoUrl}
             target="_blank"
             rel="noreferrer noopener"
-            aria-label={`Open video: ${title}`}
+            aria-label={`${t.openVideo}: ${title}`}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-bold text-black transition hover:bg-white/90"
           >
-            Open Video
+            {t.openVideo}
             <ExternalLink className="h-4 w-4" />
           </a>
         </div>

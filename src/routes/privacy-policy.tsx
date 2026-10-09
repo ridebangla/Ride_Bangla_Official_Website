@@ -11,7 +11,12 @@ export const Route = createFileRoute("/privacy-policy")({
           "How Ride Bangla collects, uses, stores and protects your personal information across our website and mobile apps.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://ridebangla.bd/privacy-policy" }],
+    links: [
+      { rel: "canonical", href: "https://ridebangla.bd/privacy-policy" },
+      { rel: "alternate", hreflang: "en", href: "https://ridebangla.bd/privacy-policy" },
+      { rel: "alternate", hreflang: "bn", href: "https://ridebangla.bd/privacy-policy?lang=bn" },
+      { rel: "alternate", hreflang: "x-default", href: "https://ridebangla.bd/privacy-policy" },
+    ],
   }),
   component: PrivacyPage,
 });
