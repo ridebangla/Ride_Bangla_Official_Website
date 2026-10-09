@@ -1,3 +1,4 @@
+// Force rebuild: Vercel cache refresh 2026-10-09
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -602,3 +603,4 @@ function SupportCard({
     </div>
   );
 }
+
