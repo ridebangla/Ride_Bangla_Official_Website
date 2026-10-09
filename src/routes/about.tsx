@@ -1,5 +1,6 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   ArrowRight,
   CheckCircle2,
@@ -17,10 +18,11 @@ import {
   Package,
   Store,
   Car,
-  Languages,
 } from "lucide-react";
-import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
+import { LeadershipCard } from "@/components/site/LeadershipCard";
+import { leadership } from "@/lib/team-data";
+import { OFFICIAL_CONTACT } from "@/lib/official-contact";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -31,7 +33,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Ride Bangla is a Bangladesh-wide technology company with its head office in Faridpur, building a connected ecosystem across ride sharing, food delivery, courier delivery, homemade food, restaurant food, grocery, medicine, marketplace and professional digital services — serving all 64 districts of Bangladesh.",
+          "Ride Bangla is a Bangladesh-wide tech company headquartered in Faridpur, building a connected ecosystem for rides, delivery and digital services.",
       },
       {
         property: "og:title",
@@ -52,62 +54,32 @@ export const Route = createFileRoute("/about")({
         rel: "canonical",
         href: "https://ridebangla.bd/about",
       },
+      {
+        rel: "alternate",
+        hreflang: "en",
+        href: "https://ridebangla.bd/about",
+      },
+      {
+        rel: "alternate",
+        hreflang: "bn",
+        href: "https://ridebangla.bd/about?lang=bn",
+      },
+      {
+        rel: "alternate",
+        hreflang: "x-default",
+        href: "https://ridebangla.bd/about",
+      },
     ],
   }),
   component: AboutPage,
 });
-
-type Language = "en" | "bn";
-
-type TeamMember = {
-  id: string;
-  name: string;
-  title: string;
-  photo_url: string;
-  facebook_url: string | null;
-  instagram_url: string | null;
-  bio: {
-    en: string;
-    bn: string;
-  };
-};
-
-const leadership: TeamMember[] = [
-  {
-    id: "enamul-seddik",
-    name: "Enamul Seddik",
-    title: "Co-Founder & CEO",
-    photo_url: "/assets/leadership/enamul-seddik.jpg",
-    facebook_url: "https://www.facebook.com/share/14iDKweDHqr/",
-    instagram_url: "https://www.instagram.com/ena.mul_?igsh=eGNvNm10aDc0dWF6",
-    bio: {
-      en:
-        "Enamul Seddik is a Co-Founder and the Chief Executive Officer of Ride Bangla. After returning to Bangladesh following a difficult period working abroad, he channelled that experience into building Ride Bangla from the ground up — starting with nothing more than a personal phone, a Facebook page and a clear vision for a homegrown delivery and services company. As CEO, he leads the company's overall vision, business strategy, product direction, technology roadmap and long-term growth, while overseeing executive decision-making, operations, financial and resource priorities, team development, compliance coordination and strategic partnerships. He has personally guided the planning and development of the Customer, Rider, Partner, Agent and Admin platforms, together with the official website and the wider digital ecosystem. His long-term objective is to build a sustainable Bangladesh-based technology company that creates meaningful earning and employment opportunities as the ecosystem expands across all 64 districts.",
-      bn:
-        "এনামুল সিদ্দিক Ride Bangla-এর একজন Co-Founder এবং Chief Executive Officer (CEO)। প্রবাসে কঠিন এক অভিজ্ঞতার পর দেশে ফিরে তিনি সেই অভিজ্ঞতাকে কাজে লাগিয়ে শূন্য থেকে Ride Bangla গড়ে তোলেন — একটি ব্যক্তিগত মোবাইল ফোন, একটি Facebook Page এবং একটি দেশীয় ডেলিভারি ও সার্ভিস কোম্পানি গড়ার স্পষ্ট স্বপ্ন নিয়ে। CEO হিসেবে তিনি প্রতিষ্ঠানের সামগ্রিক ভিশন, ব্যবসায়িক কৌশল, প্রোডাক্ট দিকনির্দেশনা, প্রযুক্তিগত রোডম্যাপ ও দীর্ঘমেয়াদি প্রবৃদ্ধির নেতৃত্ব দেন, পাশাপাশি নির্বাহী সিদ্ধান্ত গ্রহণ, অপারেশন, আর্থিক ও রিসোর্স অগ্রাধিকার, টিম ডেভেলপমেন্ট, কমপ্লায়েন্স সমন্বয় এবং কৌশলগত পার্টনারশিপ তদারকি করেন। তিনি ব্যক্তিগতভাবে Customer, Rider, Partner, Agent ও Admin প্ল্যাটফর্ম, অফিসিয়াল ওয়েবসাইট এবং বৃহত্তর ডিজিটাল ইকোসিস্টেমের পরিকল্পনা ও উন্নয়নে নেতৃত্ব দিয়েছেন। দীর্ঘমেয়াদে তার লক্ষ্য হলো এমন একটি টেকসই বাংলাদেশভিত্তিক প্রযুক্তি প্রতিষ্ঠান গড়ে তোলা, যা ইকোসিস্টেম সব ৬৪ জেলা জুড়ে বিস্তারের সঙ্গে সঙ্গে অর্থবহ আয় ও কর্মসংস্থানের সুযোগ তৈরি করবে।",
-    },
-  },
-  {
-    id: "emon-seddik",
-    name: "Emon Seddik",
-    title: "Co-Founder & Director",
-    photo_url: "/assets/leadership/emon-seddik.webp",
-    facebook_url: "https://www.facebook.com/share/14gWYs5XrYE/",
-    instagram_url: null,
-    bio: {
-      en:
-        "Emon Seddik is a Co-Founder and the Director of Ride Bangla. Balancing his role at the company with his university studies, he brings hands-on discipline and quiet determination to the organization's day-to-day leadership, proving that ambition and impact are never limited by physical ability. As Director, he coordinates day-to-day organizational activities, supports operational planning and execution, maintains communication between teams, and works closely with partners, riders and agents to keep the network running smoothly. He also oversees internal administration and helps management implement approved business decisions, contributing to operational discipline, team coordination and consistent service quality. Working in close partnership with the Co-Founder & CEO, Emon plays a central role in turning Ride Bangla's vision into a dependable, everyday service for customers across Bangladesh.",
-      bn:
-        "ইমন সিদ্দিক Ride Bangla-এর একজন Co-Founder এবং Director। বিশ্ববিদ্যালয়ের পড়াশোনার পাশাপাশি প্রতিষ্ঠানের দায়িত্ব সামলে তিনি দৈনন্দিন নেতৃত্বে হাতে-কলমে নিষ্ঠা ও দৃঢ়তা নিয়ে আসেন, প্রমাণ করেন যে উচ্চাকাঙ্ক্ষা ও অবদান কখনোই শারীরিক সীমাবদ্ধতার দ্বারা আটকে থাকে না। Director হিসেবে তিনি দৈনন্দিন সাংগঠনিক কার্যক্রম সমন্বয় করেন, অপারেশনাল পরিকল্পনা ও বাস্তবায়নে সহায়তা করেন, বিভিন্ন টিমের মধ্যে যোগাযোগ বজায় রাখেন এবং নেটওয়ার্ক সচল রাখতে পার্টনার, রাইডার ও এজেন্টদের সঙ্গে ঘনিষ্ঠভাবে কাজ করেন। এছাড়াও তিনি অভ্যন্তরীণ প্রশাসনিক কার্যক্রম তদারকি করেন এবং ব্যবস্থাপনাকে অনুমোদিত ব্যবসায়িক সিদ্ধান্ত বাস্তবায়নে সহায়তা করেন, যা অপারেশনাল শৃঙ্খলা, টিম সমন্বয় ও ধারাবাহিক সার্ভিস কোয়ালিটি বজায় রাখতে সহায়ক হয়। Co-Founder & CEO-এর সঙ্গে ঘনিষ্ঠভাবে কাজ করে ইমন Ride Bangla-এর ভিশনকে বাংলাদেশজুড়ে গ্রাহকদের জন্য একটি নির্ভরযোগ্য দৈনন্দিন সার্ভিসে রূপান্তরে গুরুত্বপূর্ণ ভূমিকা পালন করেন।",
-    },
-  },
-];
 
 const copy = {
   en: {
     headerTitle: "About Ride Bangla",
     headerSubtitle:
       "A Bangladesh-wide technology company building a trusted digital service ecosystem, headquartered in Faridpur and serving all 64 districts.",
+    headerEyebrow: "About Ride Bangla",
     language: "বাংলা",
     founded: "Head Office in Faridpur — Serving All of Bangladesh",
     heroTitle:
@@ -121,6 +93,7 @@ const copy = {
     contact: "Contact Us",
     viewApps: "View Apps",
     origin: "Origin",
+    originValue: "Faridpur, Bangladesh",
     website: "Website",
     email: "Email",
     phone: "Phone / WhatsApp",
@@ -164,18 +137,22 @@ const copy = {
       "Ride Sharing and transport services connected with the wider Ride Bangla ecosystem.",
     technology: "Technology",
     technologyBody:
-      "Ride Bangla Studio, app and website development, graphics and other professional digital services.",
+      "Ride Bangla IT Team, app and website development, graphics and other professional digital services.",
     leadership: "Leadership",
     leadershipTitle: "Meet the team behind Ride Bangla",
+    leadershipBlurb:
+      "The people responsible for shaping Ride Bangla's direction, culture and service ecosystem.",
     official: "Official Communication",
     officialTitle: "Contact Ride Bangla through official channels only.",
     officialBody:
       "For business, partnership, rider, partner, customer support or website-related communication, please use Ride Bangla's official contact information.",
+    whatsapp: "WhatsApp / Phone",
   },
   bn: {
     headerTitle: "Ride Bangla সম্পর্কে",
     headerSubtitle:
       "ফরিদপুরে হেড অফিস নিয়ে সারা বাংলাদেশের জন্য একটি নির্ভরযোগ্য ডিজিটাল সার্ভিস ইকোসিস্টেম গড়ে তোলার উদ্যোগ — সব ৬৪ জেলায় সেবা প্রদান।",
+    headerEyebrow: "রাইড বাংলা",
     language: "English",
     founded: "ফরিদপুরে হেড অফিস — সারা বাংলাদেশে সেবা",
     heroTitle:
@@ -189,6 +166,7 @@ const copy = {
     contact: "যোগাযোগ করুন",
     viewApps: "অ্যাপগুলো দেখুন",
     origin: "উৎপত্তি",
+    originValue: "ফরিদপুর, বাংলাদেশ",
     website: "ওয়েবসাইট",
     email: "ইমেইল",
     phone: "ফোন / WhatsApp",
@@ -232,35 +210,31 @@ const copy = {
       "Ride Sharing ও Transport Services, যা Ride Bangla-এর বৃহত্তর ইকোসিস্টেমের সঙ্গে সংযুক্ত।",
     technology: "প্রযুক্তি",
     technologyBody:
-      "Ride Bangla Studio, App ও Website Development, Graphics এবং অন্যান্য Professional Digital Services।",
+      "Ride Bangla IT Team, App ও Website Development, Graphics এবং অন্যান্য Professional Digital Services।",
     leadership: "লিডারশিপ",
     leadershipTitle: "Ride Bangla-এর নেতৃত্বে যারা",
+    leadershipBlurb:
+      "যারা Ride Bangla-এর দিকনির্দেশনা, সংস্কৃতি ও সেবা ইকোসিস্টেম গঠনের দায়িত্বে রয়েছেন।",
     official: "অফিসিয়াল যোগাযোগ",
     officialTitle: "শুধুমাত্র অফিসিয়াল চ্যানেলের মাধ্যমে Ride Bangla-এর সঙ্গে যোগাযোগ করুন।",
     officialBody:
       "Business, Partnership, Rider, Partner, Customer Support অথবা Website-related যোগাযোগের জন্য Ride Bangla-এর অফিসিয়াল যোগাযোগের তথ্য ব্যবহার করুন।",
+    whatsapp: "WhatsApp / ফোন",
   },
 } as const;
 
 function AboutPage() {
-  const [language, setLanguage] = useState<Language>("en");
+  const { language } = useLanguage();
   const t = useMemo(() => copy[language], [language]);
 
   return (
     <SiteLayout>
-      <PageHeader title={t.headerTitle} subtitle={t.headerSubtitle} />
-
-      <div className="mx-auto flex max-w-6xl justify-end px-4 pt-5">
-        <button
-          type="button"
-          onClick={() => setLanguage(language === "en" ? "bn" : "en")}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:border-brand-green hover:text-brand-green"
-          aria-label="Change language"
-        >
-          <Languages className="h-4 w-4" />
-          {t.language}
-        </button>
-      </div>
+      <PageHeader
+        title={t.headerTitle}
+        subtitle={t.headerSubtitle}
+        eyebrow={t.headerEyebrow}
+        icon={Heart}
+      />
 
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
@@ -308,7 +282,7 @@ function AboutPage() {
               <InfoRow
                 icon={<MapPin className="h-5 w-5" />}
                 label={t.origin}
-                value="Faridpur, Bangladesh"
+                value={t.originValue}
               />
               <InfoRow
                 icon={<Globe className="h-5 w-5" />}
@@ -325,8 +299,8 @@ function AboutPage() {
               <InfoRow
                 icon={<Phone className="h-5 w-5" />}
                 label={t.phone}
-                value="+8801626633316"
-                href="https://wa.me/8801626633316"
+                value={OFFICIAL_CONTACT.phoneLabel}
+                href={`https://wa.me/${OFFICIAL_CONTACT.whatsapp}`}
               />
             </div>
           </div>
@@ -429,81 +403,22 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-brand-green">
-            {t.leadership}
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight">
-            {t.leadershipTitle}
-          </h2>
-        </div>
+      <section className="relative overflow-hidden bg-[#f5faf7] py-20 sm:py-24">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-green/30 to-transparent" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.38em] text-brand-red">{t.leadership}</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#06291f] sm:text-5xl">{t.leadershipTitle}</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+              {t.leadershipBlurb}
+            </p>
+          </div>
 
-        <div className="mt-7 grid gap-6 sm:grid-cols-2">
-          {leadership.map((member) => {
-            const bio = member.bio[language];
-
-            return (
-              <article
-                key={member.id}
-                className="min-w-0 overflow-hidden rounded-[2rem] border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:p-6"
-              >
-                <div className="flex min-w-0 flex-col items-start gap-5 sm:flex-row">
-                  <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-brand-green-soft ring-2 ring-brand-green/20">
-                    <img
-                      src={member.photo_url}
-                      alt={member.name}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                      onError={(event) => {
-                        event.currentTarget.style.display = "none";
-                      }}
-                    />
-                  </div>
-
-                  <div className="min-w-0 w-full">
-                    <h3 className="break-words text-xl font-bold">
-                      {member.name}
-                    </h3>
-
-                    <p className="mt-1 text-sm font-semibold text-brand-green">
-                      {member.title}
-                    </p>
-
-                    <div className="mt-4 flex items-center gap-3">
-                      {member.facebook_url ? (
-                        <a
-                          aria-label={`${member.name} on Facebook`}
-                          href={member.facebook_url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="rounded-full bg-muted p-2 text-muted-foreground transition hover:text-brand-green"
-                        >
-                          <FaFacebook className="h-5 w-5" />
-                        </a>
-                      ) : null}
-
-                      {member.instagram_url ? (
-                        <a
-                          aria-label={`${member.name} on Instagram`}
-                          href={member.instagram_url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="rounded-full bg-muted p-2 text-muted-foreground transition hover:text-brand-red"
-                        >
-                          <FaInstagram className="h-5 w-5" />
-                        </a>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-
-                <p className="mt-5 break-words text-sm leading-7 text-muted-foreground">
-                  {bio}
-                </p>
-              </article>
-            );
-          })}
+          <div className="mx-auto mt-10 grid max-w-5xl gap-7 md:grid-cols-2">
+            {leadership.map((member) => (
+              <LeadershipCard key={member.id} member={member} language={language} />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -532,13 +447,13 @@ function AboutPage() {
               </a>
 
               <a
-                href="https://wa.me/8801626633316"
+                href={`https://wa.me/${OFFICIAL_CONTACT.whatsapp}`}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-green px-5 py-4 text-sm font-bold text-white transition hover:bg-brand-green/90"
               >
                 <Phone className="h-5 w-5" />
-                WhatsApp / Phone
+                {t.whatsapp}
               </a>
             </div>
           </div>

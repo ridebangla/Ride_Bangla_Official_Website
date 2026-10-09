@@ -44,7 +44,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
 
@@ -101,12 +101,14 @@ export const Route = createRootRouteWithContext<{
       {
         property: "og:description",
         content:
-          "Ride sharing, food delivery, courier delivery, homemade food, restaurant food, grocery, medicine, marketplace and Ride Bangla Studio digital services — serving all 64 districts of Bangladesh.",
+          "Ride sharing, food delivery, courier delivery, homemade food, restaurant food, grocery, medicine, marketplace and Ride Bangla IT digital services — serving all 64 districts of Bangladesh.",
       },
       { property: "og:site_name", content: "Ride Bangla" },
       { property: "og:url", content: siteUrl },
       { name: "twitter:site", content: "@ridebangla" },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_US" },
+      { property: "og:locale:alternate", content: "bn_BD" },
       { property: "og:image", content: ogImageUrl },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -122,7 +124,7 @@ export const Route = createRootRouteWithContext<{
       {
         name: "twitter:description",
         content:
-          "Ride sharing, food delivery, courier delivery, homemade food, restaurant food, grocery, medicine, marketplace and Ride Bangla Studio digital services — serving all 64 districts of Bangladesh.",
+          "Ride sharing, food delivery, courier delivery, homemade food, restaurant food, grocery, medicine, marketplace and Ride Bangla IT digital services — serving all 64 districts of Bangladesh.",
       },
       { name: "twitter:image", content: ogImageUrl },
       { name: "theme-color", content: "#16a34a" },
@@ -161,6 +163,11 @@ export const Route = createRootRouteWithContext<{
       { rel: "canonical", href: siteUrl },
     ],
     scripts: [
+      // Set <html lang> from the saved language before React hydrates so the
+      // SSR markup matches the user's language on first paint.
+      {
+        children: `try{var rbLang=localStorage.getItem("ride_bangla_language");if(rbLang==="bn"||rbLang==="en"){document.documentElement.lang=rbLang}}catch(e){}`,
+      },
       ...(import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT
         ? [{
             async: true,
@@ -207,6 +214,7 @@ export const Route = createRootRouteWithContext<{
             "https://facebook.com/ridebangla",
             "https://www.instagram.com/ride.bangla_",
             "https://www.youtube.com/@ridebangla-0",
+            "https://www.tiktok.com/@ridebangla0",
           ],
         }),
       },
