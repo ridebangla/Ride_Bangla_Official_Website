@@ -68,6 +68,7 @@ function GalleryPage() {
       <PageHeader
         title={t.headerTitle}
         subtitle={t.headerSubtitle}
+        bgImage="/assets/pages/gallery-header.jpg"
       />
       <section className="mx-auto max-w-6xl px-4 py-14">
         {loading ? (
