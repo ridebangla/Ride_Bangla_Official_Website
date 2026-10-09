@@ -14,7 +14,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
-import { signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, type User } from "firebase/auth";
+import { signInWithPopup, signOut, onAuthStateChanged, type User } from "firebase/auth";
 import { firebaseAuth, firebaseDb, googleAuthProvider } from "@/integrations/firebase/client";
 
 export type Review = {
@@ -169,43 +169,16 @@ export function useReviewAuthUser() {
 
 export async function signInToReview(): Promise<User> {
   if (!firebaseAuth) throw new Error("Reviews are not available right now. Please try again shortly.");
-  // Mobile browsers block popups — use redirect instead for reliable sign-in
-  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  if (isMobile) {
-    // Mark that we're starting a redirect, so we can detect if it fails on return
-    try { sessionStorage.setItem("rb_review_redirect", "1"); } catch {}
-    await signInWithRedirect(firebaseAuth, googleAuthProvider);
-    // Redirect will reload the page; user comes back signed in
-    throw new Error("REDIRECTING");
-  }
+  // NOTE: signInWithRedirect does NOT work in storage-partitioned browsers
+  // (Chrome Android with storage partitioning). Using popup instead —
+  // it keeps everything on the same origin so session state is not lost.
   const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
   return result.user;
 }
 
-/** Call on page load to complete redirect-based sign-in (mobile) */
+/** @deprecated Redirect flow is broken in storage-partitioned browsers. Kept as no-op. */
 export async function handleRedirectResult(): Promise<User | null> {
-  if (!firebaseAuth) return null;
-  try {
-    const result = await getRedirectResult(firebaseAuth);
-    if (result?.user) {
-      console.log("[Reviews] Redirect sign-in successful:", result.user.email);
-      // Clear redirect flag on success
-      try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
-    } else {
-      // Check if we were expecting a redirect result
-      let wasRedirecting = false;
-      try { wasRedirecting = sessionStorage.getItem("rb_review_redirect") === "1"; } catch {}
-      if (wasRedirecting) {
-        console.error("[Reviews] Redirect was initiated but no result found. Possible causes: third-party cookies blocked, or browser cleared session.");
-        try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
-      }
-    }
-    return result?.user || null;
-  } catch (err) {
-    console.error("[Reviews] Redirect result error:", err);
-    try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
-    return null;
-  }
+  return null;
 }
 
 export async function signOutOfReviews(): Promise<void> {
