@@ -14,7 +14,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
-import { signInWithPopup, signOut, onAuthStateChanged, type User } from "firebase/auth";
+import { signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, type User } from "firebase/auth";
 import { firebaseAuth, firebaseDb, googleAuthProvider } from "@/integrations/firebase/client";
 
 export type Review = {
@@ -167,18 +167,23 @@ export function useReviewAuthUser() {
   return { user, ready };
 }
 
-export async function signInToReview(): Promise<User> {
+export async function signInToReview(): Promise<void> {
   if (!firebaseAuth) throw new Error("Reviews are not available right now. Please try again shortly.");
-  // NOTE: signInWithRedirect does NOT work in storage-partitioned browsers
-  // (Chrome Android with storage partitioning). Using popup instead —
-  // it keeps everything on the same origin so session state is not lost.
-  const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
-  return result.user;
+  // Redirect flow (same as customer.ridebangla.bd which works reliably).
+  // The page goes to Google and comes back; getRedirectResult() below
+  // picks up the signed-in user on return.
+  await signInWithRedirect(firebaseAuth, googleAuthProvider);
 }
 
-/** @deprecated Redirect flow is broken in storage-partitioned browsers. Kept as no-op. */
+/** Call on page load: returns the user if they just came back from Google sign-in. */
 export async function handleRedirectResult(): Promise<User | null> {
-  return null;
+  if (!firebaseAuth) return null;
+  try {
+    const result = await getRedirectResult(firebaseAuth);
+    return result ? result.user : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function signOutOfReviews(): Promise<void> {
