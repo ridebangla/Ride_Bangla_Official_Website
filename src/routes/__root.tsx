@@ -243,6 +243,15 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Handle Firebase redirect sign-in result as early as possible.
+  // This must run at root level — if it only runs in a nested component,
+  // the redirect result can be lost when the router processes the return URL.
+  useEffect(() => {
+    import("../lib/reviews").then(({ handleRedirectResult }) => {
+      handleRedirectResult().catch(() => {});
+    });
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
