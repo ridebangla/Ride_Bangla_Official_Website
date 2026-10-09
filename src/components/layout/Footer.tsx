@@ -1,92 +1,99 @@
-import type { ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Logo } from "@/components/site/Logo";
-import { FaFacebook, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
-  Headphones,
-  ShieldCheck,
-  ArrowRight,
-  Link2,
-  LifeBuoy,
-} from "lucide-react";
+import { FaFacebook, FaInstagram, FaYoutube, FaWhatsapp, FaTiktok } from "react-icons/fa";
+import { Loader2, Mail, Phone, Send } from "lucide-react";
+import { saveWebsiteSubscriber } from "@/lib/website-data";
+import { OFFICIAL_CONTACT } from "@/lib/official-contact";
+import { useLanguage } from "@/context/LanguageContext";
 
-const officialContact = {
-  website: "https://ridebangla.bd",
-  websiteLabel: "ridebangla.bd",
-  businessEmail: "info@ridebangla.bd",
-  supportEmail: "support@ridebangla.bd",
-  phone: "+8801309587749",
-  phoneLabel: "+880 1309-587749",
-  whatsapp: "8801309587749",
-  facebookUrl: "https://www.facebook.com/ridebangla",
-  instagramUrl: "https://www.instagram.com/ride.bangla_",
-  youtubeUrl: "https://www.youtube.com/@ridebangla-0",
-  address: "Faridpur, Bangladesh (Head Office) — Serving All 64 Districts of Bangladesh",
-};
+const officialContact = OFFICIAL_CONTACT;
 
-const quickLinks = [
-  { label: "About", to: "/about" },
-  { label: "Services", to: "/services" },
-  { label: "Apps", to: "/apps" },
-  { label: "Updates", to: "/updates" },
-];
-
-const supportLinks = [
-  { label: "Help Center", to: "/help-center" },
-  { label: "Contact", to: "/contact" },
-  { label: "Privacy Policy", to: "/privacy-policy" },
-  { label: "Terms & Conditions", to: "/terms-and-conditions" },
-  { label: "Delete Account & Data", to: "/delete-account" },
-  { label: "Data Deletion", to: "/data-deletion" },
-  { label: "Cookie Policy", to: "/cookie-policy" },
-];
-
-function FooterCard({
-  icon,
-  title,
-  children,
-}: {
-  icon: ReactNode;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex h-full min-h-[230px] flex-col rounded-3xl border border-border/80 bg-background/95 p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:border-brand-green/25 hover:shadow-xl">
-      <div className="mb-5 flex items-center gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-green-soft text-brand-green shadow-sm">
-          {icon}
-        </span>
-        <div>
-          <h3 className="text-xl font-extrabold leading-tight text-foreground">
-            {title}
-          </h3>
-          <span className="mt-2 block h-1 w-10 rounded-full bg-brand-green" />
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-}
+const copy = {
+  en: {
+    home: "Ride Bangla home",
+    description:
+      "Ride Bangla is a Bangladesh digital services ecosystem for ride sharing, food delivery, courier delivery, marketplace services and professional IT solutions — one trusted brand, many services.",
+    quickLinks: "Quick Links",
+    support: "Support",
+    followUs: "Follow Us",
+    newsletter: "Subscribe to Our Newsletter",
+    newsletterBody: "Get the latest updates, offers and news.",
+    emailPlaceholder: "Enter your email address",
+    subscribe: "Subscribe",
+    subscribed: "Subscribed successfully.",
+    subscribeFail: "Could not subscribe right now.",
+    rights: "All rights reserved.",
+    tagline: "Build Together | Grow Together | Ride Bangla",
+    links: {
+      home: "Home",
+      about: "About Us",
+      services: "Services",
+      ourTeams: "Our Teams",
+      gallery: "Gallery",
+      apps: "Apps",
+      helpCenter: "Help Center",
+      updates: "Blog / Updates",
+      terms: "Terms & Conditions",
+      privacy: "Privacy Policy",
+      contact: "Contact Us",
+      deleteAccount: "Delete Account & Data",
+      dataDeletion: "Data Deletion",
+      cookie: "Cookie Policy",
+    },
+  },
+  bn: {
+    home: "Ride Bangla হোম",
+    description:
+      "Ride Bangla রাইড শেয়ারিং, ফুড ডেলিভারি, কুরিয়ার ডেলিভারি, মার্কেটপ্লেস সেবা এবং পেশাদার IT সলিউশনের জন্য বাংলাদেশের ডিজিটাল সার্ভিস ইকোসিস্টেম — একটি বিশ্বস্ত ব্র্যান্ড, অনেক সেবা।",
+    quickLinks: "দ্রুত লিংক",
+    support: "সহায়তা",
+    followUs: "ফলো করুন",
+    newsletter: "আমাদের নিউজলেটার সাবস্ক্রাইব করুন",
+    newsletterBody: "সর্বশেষ আপডেট, অফার ও খবর পান।",
+    emailPlaceholder: "আপনার ইমেইল ঠিকানা লিখুন",
+    subscribe: "সাবস্ক্রাইব",
+    subscribed: "সফলভাবে সাবস্ক্রাইব হয়েছে।",
+    subscribeFail: "এই মুহূর্তে সাবস্ক্রাইব করা যাচ্ছে না।",
+    rights: "সর্বস্বত্ব সংরক্ষিত।",
+    tagline: "একসাথে গড়ি | একসাথে বাড়ি | Ride Bangla",
+    links: {
+      home: "হোম",
+      about: "আমাদের সম্পর্কে",
+      services: "সেবাসমূহ",
+      ourTeams: "আমাদের টিম",
+      gallery: "গ্যালারি",
+      apps: "অ্যাপস",
+      helpCenter: "সহায়তা কেন্দ্র",
+      updates: "ব্লগ / আপডেট",
+      terms: "শর্তাবলী",
+      privacy: "গোপনীয়তা নীতি",
+      contact: "যোগাযোগ",
+      deleteAccount: "অ্যাকাউন্ট ও ডেটা মুছুন",
+      dataDeletion: "ডেটা ডিলিশন",
+      cookie: "কুকি নীতি",
+    },
+  },
+} as const;
 
 function FooterLink({ to, label }: { to: string; label: string }) {
   return (
     <li>
       <Link
         to={to}
-        className="group flex items-center justify-between rounded-2xl px-3 py-3 text-base font-semibold text-muted-foreground transition hover:bg-brand-green-soft hover:text-brand-green"
+        className="text-[10px] font-medium text-white/60 transition hover:text-emerald-300"
       >
-        <span>{label}</span>
-        <ArrowRight className="h-4 w-4 opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
+        {label}
       </Link>
     </li>
   );
 }
 
 export function Footer() {
+  const { language } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState<string | null>(null);
   const businessEmail = officialContact.businessEmail;
   const supportEmail = officialContact.supportEmail;
   const phone = officialContact.phone;
@@ -95,125 +102,80 @@ export function Footer() {
   const facebookUrl = officialContact.facebookUrl;
   const instagramUrl = officialContact.instagramUrl;
   const youtubeUrl = officialContact.youtubeUrl;
-  const address = officialContact.address;
+  const tiktokUrl = officialContact.tiktokUrl;
+
+  const quickLinks = [
+    { label: t.links.home, to: "/" },
+    { label: t.links.about, to: "/about" },
+    { label: t.links.services, to: "/services" },
+    { label: t.links.ourTeams, to: "/our-teams" },
+    { label: t.links.gallery, to: "/gallery" },
+    { label: t.links.apps, to: "/apps" },
+  ];
+
+  const supportLinks = [
+    { label: t.links.helpCenter, to: "/help-center" },
+    { label: t.links.updates, to: "/updates" },
+    { label: t.links.terms, to: "/terms-and-conditions" },
+    { label: t.links.privacy, to: "/privacy-policy" },
+    { label: t.links.contact, to: "/contact" },
+    { label: t.links.deleteAccount, to: "/delete-account" },
+    { label: t.links.dataDeletion, to: "/data-deletion" },
+    { label: t.links.cookie, to: "/cookie-policy" },
+  ];
 
   return (
-    <footer className="mt-16 border-t border-brand-green/10 bg-gradient-to-b from-brand-green-soft via-background to-background">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-12 sm:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1fr_1.15fr]">
-        <div className="flex h-full min-h-[230px] flex-col rounded-3xl border border-border/80 bg-background/95 p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:border-brand-green/25 hover:shadow-xl">
-          <Link
-            to="/"
-            className="flex items-center gap-3"
-            aria-label="Ride Bangla home"
-          >
-            <Logo className="h-14 w-14 object-contain drop-shadow-sm" />
-            <div className="min-w-0">
-              <span className="block text-xl font-extrabold leading-tight text-foreground">
-                Ride Bangla
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-brand-green">
-                Bangladesh Digital Ecosystem
-              </span>
-            </div>
+    <footer
+      className="mt-0 bg-[#04241b] bg-cover bg-top bg-no-repeat text-white"
+      style={{ backgroundImage: "url('/assets/home/footer-bg.jpg')" }}
+    >
+      <div className="mx-auto grid w-full max-w-7xl gap-7 px-5 py-7 sm:px-8 lg:grid-cols-[1.2fr_.8fr_.8fr_1.2fr] lg:gap-6 lg:py-8">
+        <div>
+          <Link to="/" className="flex items-center gap-3" aria-label={t.home}>
+            <img src="/logo.png" alt="Ride Bangla Limited" className="h-11 w-auto max-w-[190px] object-contain" />
           </Link>
-
-          <p className="mt-5 text-base leading-7 text-muted-foreground">
-            Ride Bangla is a Bangladesh digital services ecosystem for ride
-            sharing, food delivery, courier delivery, marketplace services,
-            customers, partners, riders, agents and professional studio services.
+          <p className="mt-2 max-w-sm text-[10px] leading-4 text-white/50">
+            {t.description}
           </p>
-
-          <div className="mt-auto flex flex-wrap gap-2 pt-5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-soft px-3 py-1.5 text-xs font-bold text-brand-green">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Food Delivery
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-soft px-3 py-1.5 text-xs font-bold text-brand-green">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Courier Services
-            </span>
+          <div className="mt-3 space-y-1 text-[10px] text-white/55">
+            <a href={`mailto:${businessEmail}`} className="flex items-center gap-2 transition hover:text-emerald-300">
+              <Mail className="h-4 w-4 shrink-0" /> {businessEmail}
+            </a>
+            <a href={`mailto:${supportEmail}`} className="flex items-center gap-2 transition hover:text-emerald-300">
+              <Mail className="h-4 w-4 shrink-0" /> {supportEmail}
+            </a>
+            <a href={`tel:${phone.replace(/[^+0-9]/g, "")}`} className="flex items-center gap-2 transition hover:text-emerald-300">
+              <Phone className="h-4 w-4 shrink-0" /> {phoneLabel}
+            </a>
           </div>
         </div>
 
-        <FooterCard icon={<Link2 className="h-5 w-5" />} title="Quick Links">
-          <ul className="space-y-1">
+        <div>
+          <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-white">{t.quickLinks}</h3>
+          <ul className="mt-2 space-y-1.5">
             {quickLinks.map((item) => (
               <FooterLink key={item.to} to={item.to} label={item.label} />
             ))}
           </ul>
-        </FooterCard>
+        </div>
 
-        <FooterCard icon={<LifeBuoy className="h-5 w-5" />} title="Support">
-          <ul className="space-y-1">
+        <div>
+          <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-white">{t.support}</h3>
+          <ul className="mt-2 space-y-1.5">
             {supportLinks.map((item) => (
               <FooterLink key={item.to} to={item.to} label={item.label} />
             ))}
           </ul>
+        </div>
 
-          <Link
-            to="/help-center"
-            className="mt-auto flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-green px-4 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-brand-green-dark hover:shadow-lg"
-          >
-            <Headphones className="h-4 w-4" />
-            Get Help
-          </Link>
-        </FooterCard>
-
-        <FooterCard icon={<Globe className="h-5 w-5" />} title="Connect">
-          <ul className="space-y-2.5 text-sm">
-            <li>
-              <a
-                href={officialContact.website}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="flex items-center gap-2 break-all text-muted-foreground transition hover:text-brand-green"
-              >
-                <Globe className="h-4 w-4 shrink-0" />
-                {officialContact.websiteLabel}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href={`mailto:${businessEmail}`}
-                className="flex items-center gap-2 break-all text-muted-foreground transition hover:text-brand-green"
-              >
-                <Mail className="h-4 w-4 shrink-0" />
-                {businessEmail}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href={`mailto:${supportEmail}`}
-                className="flex items-center gap-2 break-all text-muted-foreground transition hover:text-brand-green"
-              >
-                <Mail className="h-4 w-4 shrink-0" />
-                {supportEmail}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href={`tel:${phone.replace(/[^+0-9]/g, "")}`}
-                className="flex items-center gap-2 text-muted-foreground transition hover:text-brand-green"
-              >
-                <Phone className="h-4 w-4 shrink-0" />
-                {phoneLabel}
-              </a>
-            </li>
-
-            <li className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4 shrink-0" />
-              {address}
-            </li>
-          </ul>
-
-          <div className="mt-auto flex flex-wrap items-center gap-3 pt-5">
+        <div>
+          <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-white">{t.followUs}</h3>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             {[
               { label: "Facebook", href: facebookUrl, icon: <FaFacebook /> },
-              { label: "Instagram", href: instagramUrl, icon: <FaInstagram /> },
               { label: "YouTube", href: youtubeUrl, icon: <FaYoutube /> },
+              { label: "Instagram", href: instagramUrl, icon: <FaInstagram /> },
+              { label: "TikTok", href: tiktokUrl, icon: <FaTiktok /> },
               {
                 label: "WhatsApp",
                 href: `https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`,
@@ -226,19 +188,60 @@ export function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-green-soft text-lg text-brand-green shadow-sm ring-1 ring-brand-green/15 transition hover:-translate-y-1 hover:bg-brand-green hover:text-white hover:shadow-md"
+                className="grid h-7 w-7 place-items-center rounded-full bg-white/10 text-sm text-white/80 transition hover:-translate-y-0.5 hover:bg-emerald-400 hover:text-[#04241b]"
               >
                 {social.icon}
               </a>
             ))}
           </div>
-        </FooterCard>
+
+          <h3 className="mt-4 text-[10px] font-extrabold uppercase tracking-wider text-white">
+            {t.newsletter}
+          </h3>
+          <p className="mt-1 text-[9px] text-white/50">{t.newsletterBody}</p>
+          <form
+            onSubmit={async (event) => {
+              event.preventDefault();
+              if (submitting) return;
+              setSubscribeMessage(null);
+              setSubmitting(true);
+              try {
+                await saveWebsiteSubscriber(email);
+                setEmail("");
+                setSubscribeMessage(t.subscribed);
+              } catch (error) {
+                setSubscribeMessage(error instanceof Error ? error.message : t.subscribeFail);
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+            className="mt-2 flex items-center overflow-hidden rounded-lg bg-white/10 pr-1"
+          >
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder={t.emailPlaceholder}
+              className="w-full bg-transparent px-3 py-2 text-[10px] text-white placeholder:text-white/40 focus:outline-none"
+            />
+            <button
+              type="submit"
+              aria-label={t.subscribe}
+              disabled={submitting}
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-emerald-400 text-[#04241b] transition hover:bg-emerald-300 disabled:opacity-60"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
+          </form>
+          {subscribeMessage && <p className="mt-2 text-[10px] font-bold text-emerald-200">{subscribeMessage}</p>}
+        </div>
       </div>
 
-      <div className="border-t border-border bg-background/95">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
-          <span>© {new Date().getFullYear()} Ride Bangla. All rights reserved.</span>
-          <span>Head office in Faridpur — serving all 64 districts of Bangladesh.</span>
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-1 px-5 py-3 text-center text-[9px] text-white/45 sm:flex-row sm:text-left">
+          <span>© {new Date().getFullYear()} Ride Bangla Limited. {t.rights}</span>
+          <span>{t.tagline}</span>
         </div>
       </div>
     </footer>
