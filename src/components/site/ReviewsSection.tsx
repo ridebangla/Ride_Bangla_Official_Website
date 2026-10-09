@@ -3,6 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { LogOut, Loader2, Star } from "lucide-react";
 import {
   getOwnReview,
+  handleRedirectResult,
   signInToReview,
   signOutOfReviews,
   submitReview,
@@ -157,12 +158,19 @@ function WriteReviewCard() {
     setSigningIn(true);
     try {
       await signInToReview();
-    } catch {
+    } catch (err) {
+      // REDIRECTING means mobile redirect started — page will reload, no error to show
+      if (err instanceof Error && err.message === "REDIRECTING") return;
       setError(t.signInFail);
     } finally {
       setSigningIn(false);
     }
   };
+
+  // Complete mobile redirect sign-in when returning from Google
+  useEffect(() => {
+    handleRedirectResult().catch(() => {});
+  }, []);
 
   const handleSubmit = async () => {
     if (!user) return;
