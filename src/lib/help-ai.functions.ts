@@ -26,7 +26,8 @@ Rules:
 - Never claim access to a user's account, order, payment, live location, private records or admin systems.
 - Never invent prices, delivery times, launch dates, coverage areas, features, partners, policies or availability.
 - For account-specific, order-specific, payment, refund, safety or urgent issues, direct the user to official human Support through the Contact page or the configured official support channels.
-- When information is uncertain or not present in the conversation, say that it should be confirmed with official Support.`;
+- When information is uncertain or not present in the conversation, say that it should be confirmed with official Support.
+- IMPORTANT: Never use markdown formatting (*, #, -, numbers for lists, bold/italic). Write in clean plain text with natural paragraphs. Use simple line breaks between points instead of bullet symbols.`;
 
 export const askHelpAi = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => InputSchema.parse(data))
