@@ -13,6 +13,7 @@ const dictionary: Dictionary = {
   apps: { en: "Apps", bn: "অ্যাপসমূহ" },
   updates: { en: "Updates", bn: "আপডেট" },
   help: { en: "Help Center", bn: "সহায়তা কেন্দ্র" },
+  helpCenter: { en: "Help Center", bn: "সহায়তা কেন্দ্র" },
   contact: { en: "Contact", bn: "যোগাযোগ" },
   downloadApp: { en: "Download App", bn: "অ্যাপ ডাউনলোড" },
   searchPlaceholder: { en: "Search the site…", bn: "সাইটে খুঁজুন…" },
