@@ -72,7 +72,7 @@ export const leadership: TeamMember[] = [
     title: "IT Team Director",
     photo_url: "/assets/leadership/tabassum-nisha.jpg",
     facebook_url: "https://www.facebook.com/ridebanglait0",
-    instagram_url: null,
+    instagram_url: "https://www.instagram.com/nis.ha_it",
     x_url: null,
     whatsapp_number: "+8801825234644",
     wechat_id: null,
