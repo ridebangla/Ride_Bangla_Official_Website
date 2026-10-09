@@ -12,7 +12,9 @@ const nav = [
   { to: "/our-teams", key: "ourTeams" },
   { to: "/gallery", key: "gallery" },
   { to: "/updates", key: "blog" },
+  { to: "/apps", key: "apps" },
   { to: "/contact", key: "contact" },
+  { to: "/help-center", key: "helpCenter" },
 ] as const;
 
 const searchIndex = [
