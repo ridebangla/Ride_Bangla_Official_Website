@@ -126,8 +126,8 @@ export function Footer() {
 
   return (
     <footer
-      className="mt-0 bg-[#04241b] bg-cover bg-top bg-no-repeat text-white"
-      style={{ backgroundImage: "url('/assets/home/footer-bg.jpg')" }}
+      className="mt-0 bg-[#04241b] bg-cover bg-center bg-no-repeat text-white"
+      style={{ backgroundImage: "url('/assets/home/footer-bg.jpg')", backgroundSize: "cover" }}
     >
       <div className="mx-auto grid w-full max-w-7xl gap-7 px-5 py-7 sm:px-8 lg:grid-cols-[1.2fr_.8fr_.8fr_1.2fr] lg:gap-6 lg:py-8">
         <div>
