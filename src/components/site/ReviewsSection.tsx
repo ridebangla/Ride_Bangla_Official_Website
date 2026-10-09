@@ -354,7 +354,8 @@ export function ReviewsSection() {
                 <span className="text-[10px] font-black text-slate-700">{roundedAverage.toFixed(1)} · {count}</span>
               </div>
             )}
-            <button type="button" onClick={() => setShowForm((value) => !value)} className="rounded-full bg-[#0b7a3b] px-3.5 py-1.5 text-[10px] font-black text-white transition hover:bg-[#075e2e]">
+            <button type="button" onClick={() => setShowForm((value) => !value)} className="inline-flex items-center gap-1.5 rounded-full bg-[#0b7a3b] px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-900/20 transition hover:bg-[#075e2e] hover:shadow-xl hover:scale-105 active:scale-95">
+              <Star className="h-3.5 w-3.5 fill-amber-300 text-amber-300" />
               {showForm ? t.closeReview : t.writeReview}
             </button>
           </div>
