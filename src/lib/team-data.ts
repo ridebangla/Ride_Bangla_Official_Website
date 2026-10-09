@@ -36,7 +36,7 @@ export const leadership: TeamMember[] = [
     id: "emon-seddik",
     name: "Emon Seddik",
     title: "Co-Founder & Director",
-    photo_url: "/assets/leadership/emon-seddik.webp",
+    photo_url: "/assets/leadership/emon-seddik.jpg",
     facebook_url: "https://www.facebook.com/share/14gWYs5XrYE/",
     instagram_url: "https://www.instagram.com/emonrehman51?stkn=ZTI4bzA3MHNlNzZr",
     x_url: null,
