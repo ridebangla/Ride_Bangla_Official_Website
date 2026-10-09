@@ -34,7 +34,16 @@ export const askHelpAi = createServerFn({ method: "POST" })
     const groqKey = process.env.GROQ_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
     const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-    const groqModel = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    // NOTE: Groq decommissioned llama-3.3-70b-versatile on 2026-08-16.
+    // Current Groq-recommended models: openai/gpt-oss-120b (flagship), openai/gpt-oss-20b (fast).
+    // The env override comes first; the built-ins act as fallback if a model is retired.
+    const groqModels = Array.from(
+      new Set([
+        process.env.GROQ_MODEL || "openai/gpt-oss-120b",
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+      ]),
+    );
 
     if (!groqKey && !geminiKey) {
       return {
@@ -59,32 +68,53 @@ export const askHelpAi = createServerFn({ method: "POST" })
 
       let answer: string | null = null;
 
-      // Try Groq first (free tier, no billing required)
+      // Try Groq first (free tier, no billing required).
+      // Loop over candidate models so a future Groq model retirement
+      // degrades to the next model instead of killing the chat.
       if (groqKey) {
-        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${groqKey}`,
-          },
-          body: JSON.stringify({
-            model: groqModel,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              ...historyMessages,
-              { role: "user", content: data.question },
-            ],
-            temperature: 0.3,
-            max_tokens: 800,
-          }),
-          signal: controller.signal,
-        });
+        for (const groqModel of groqModels) {
+          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${groqKey}`,
+            },
+            body: JSON.stringify({
+              model: groqModel,
+              messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                ...historyMessages,
+                { role: "user", content: data.question },
+              ],
+              temperature: 0.3,
+              max_tokens: 800,
+            }),
+            signal: controller.signal,
+          });
 
-        if (groqRes.ok) {
-          const groqJson = (await groqRes.json()) as {
-            choices?: Array<{ message?: { content?: string } }>;
-          };
-          answer = groqJson.choices?.[0]?.message?.content?.trim() || null;
+          if (groqRes.ok) {
+            const groqJson = (await groqRes.json()) as {
+              choices?: Array<{ message?: { content?: string } }>;
+            };
+            answer = groqJson.choices?.[0]?.message?.content?.trim() || null;
+            if (answer) break;
+            console.error("[help-ai] Groq returned ok but empty answer", groqModel);
+            break;
+          }
+
+          // Log the real upstream error to Vercel runtime logs for diagnosis.
+          let errBody = "";
+          try {
+            errBody = (await groqRes.text()).slice(0, 300);
+          } catch {
+            errBody = "<unreadable>";
+          }
+          console.error(`[help-ai] Groq request failed model=${groqModel} status=${groqRes.status} body=${errBody}`);
+
+          // A 404 means this model id is retired — try the next candidate.
+          // Any other status (401 bad key, 429 rate limit, 5xx) will not be
+          // fixed by switching models, so stop and fall through.
+          if (groqRes.status !== 404) break;
         }
       }
 
@@ -121,6 +151,14 @@ export const askHelpAi = createServerFn({ method: "POST" })
               ?.map((part) => part.text ?? "")
               .join("")
               .trim() || null;
+        } else {
+          let errBody = "";
+          try {
+            errBody = (await res.text()).slice(0, 300);
+          } catch {
+            errBody = "<unreadable>";
+          }
+          console.error(`[help-ai] Gemini request failed status=${res.status} body=${errBody}`);
         }
       }
 
@@ -134,8 +172,9 @@ export const askHelpAi = createServerFn({ method: "POST" })
       }
 
       return { ok: true as const, answer };
-    } catch {
+    } catch (err) {
       clearTimeout(timeoutId);
+      console.error("[help-ai] handler exception", err instanceof Error ? err.message : err);
       return {
         ok: false as const,
         error: "AI support is temporarily unavailable. Please use official Support.",
