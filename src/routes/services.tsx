@@ -258,6 +258,7 @@ function ServicesPage() {
       <PageHeader
         title={t.headerTitle}
         subtitle={t.headerSubtitle}
+        bgImage="/assets/pages/services-banner.jpg"
       />
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
