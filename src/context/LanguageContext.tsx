@@ -5,12 +5,17 @@ type Dictionary = Record<string, { en: string; bn: string }>;
 
 const dictionary: Dictionary = {
   home: { en: "Home", bn: "হোম" },
-  about: { en: "About", bn: "পরিচিতি" },
+  about: { en: "About Us", bn: "পরিচিতি" },
   services: { en: "Services", bn: "সেবাসমূহ" },
+  ourTeams: { en: "Our Teams", bn: "আমাদের টিম" },
+  gallery: { en: "Gallery", bn: "গ্যালারি" },
+  blog: { en: "Blog", bn: "ব্লগ" },
   apps: { en: "Apps", bn: "অ্যাপসমূহ" },
   updates: { en: "Updates", bn: "আপডেট" },
   help: { en: "Help Center", bn: "সহায়তা কেন্দ্র" },
   contact: { en: "Contact", bn: "যোগাযোগ" },
+  downloadApp: { en: "Download App", bn: "অ্যাপ ডাউনলোড" },
+  searchPlaceholder: { en: "Search the site…", bn: "সাইটে খুঁজুন…" },
   notifications: { en: "Website Updates", bn: "ওয়েবসাইট আপডেট" },
   latestAnnouncements: { en: "Latest Ride Bangla announcements", bn: "Ride Bangla-এর সর্বশেষ ঘোষণা" },
   noUpdates: { en: "No updates yet.", bn: "এখনো কোনো আপডেট নেই।" },
@@ -43,6 +48,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
+      // ?lang=bn|en query param (used by hreflang alternate URLs) takes
+      // precedence on first load, then persists via localStorage.
+      const param = new URLSearchParams(window.location.search).get("lang");
+      if (param === "bn" || param === "en") {
+        setLanguageState(param);
+        window.localStorage.setItem("ride_bangla_language", param);
+        return;
+      }
       const stored = window.localStorage.getItem("ride_bangla_language");
       if (stored === "bn" || stored === "en") setLanguageState(stored);
     } catch {
