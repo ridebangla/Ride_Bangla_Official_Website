@@ -364,6 +364,7 @@ function ContactPage() {
           title={t.heroTitle}
           subtitle={t.heroBody}
           eyebrow={t.heroEyebrow}
+          bgImage="/assets/pages/contact-header.jpg"
         />
 
         <section className="px-4 py-14 sm:px-6 lg:px-8">
