@@ -161,7 +161,10 @@ function WriteReviewCard() {
     } catch (err) {
       // REDIRECTING means mobile redirect started — page will reload, no error to show
       if (err instanceof Error && err.message === "REDIRECTING") return;
-      setError(t.signInFail);
+      // Show actual error for debugging
+      const msg = err instanceof Error ? err.message : t.signInFail;
+      console.error("[Reviews] Sign-in error:", err);
+      setError(`${t.signInFail} (${msg})`);
     } finally {
       setSigningIn(false);
     }
