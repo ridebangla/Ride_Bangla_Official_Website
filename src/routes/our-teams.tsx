@@ -138,51 +138,85 @@ type TeamSlide = {
 
 function TeamPhotoSlider({ slides }: { slides: TeamSlide[] }) {
   const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
   const total = slides.length;
 
+  // Preload every slide image on mount so autoplay never lands on a
+  // blank/loading frame (this was why the last photo appeared "missing").
   useEffect(() => {
-    if (total <= 1) return;
+    slides.forEach((s) => {
+      const img = new Image();
+      img.src = s.src;
+    });
+  }, [slides]);
+
+  // Autoplay: 5s per slide. Timer restarts on every slide change (auto or
+  // manual) and pauses while the user hovers/touches the slider.
+  useEffect(() => {
+    if (total <= 1 || paused) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % total);
     }, 5000);
     return () => clearInterval(timer);
-  }, [total]);
+  }, [total, paused, index]);
 
   const goTo = (i: number) => setIndex(((i % total) + total) % total);
   const slide = slides[index];
 
   return (
-    <div>
-      <div className="flex items-center gap-2 text-brand-green">
-        {slide.icon}
-        <p className="text-xs font-black uppercase tracking-[.18em]">{slide.eyebrow}</p>
+    <div
+      className="select-none"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
+    >
+      {/* Text block — keyed so it softly fades on every slide change.
+          Min-heights keep the copy swap from shifting the photo below. */}
+      <div key={index} className="rb-slide-text">
+        <div className="flex h-5 items-center gap-2 text-brand-green">
+          {slide.icon}
+          <p className="text-xs font-black uppercase tracking-[.18em]">{slide.eyebrow}</p>
+        </div>
+        <h2 className="mt-2 min-h-[4rem] text-2xl font-black text-[#06291f] sm:min-h-[2.75rem] sm:text-3xl">
+          {slide.title}
+        </h2>
+        <p className="mt-2 min-h-[3.75rem] max-w-2xl text-sm text-slate-600">{slide.body}</p>
       </div>
-      <h2 className="mt-2 text-2xl font-black text-[#06291f] sm:text-3xl">{slide.title}</h2>
-      <p className="mt-2 max-w-2xl text-sm text-slate-600">{slide.body}</p>
-      <div className="relative mt-6 overflow-hidden rounded-3xl shadow-[0_24px_70px_rgba(0,42,28,.12)]">
-        <img
-          src={slide.src}
-          alt={slide.alt}
-          className="h-full w-full object-cover"
-          key={slide.src}
-        />
+      {/* Photo stage — fixed 3:2 aspect ratio so the layout never jumps.
+          All slides stay mounted and crossfade (opacity) with a slow
+          cinematic zoom on the active photo. */}
+      <div className="relative mt-6 aspect-[3/2] overflow-hidden rounded-3xl bg-[#06291f]/5 shadow-[0_24px_70px_rgba(0,42,28,.12)]">
+        {slides.map((s, i) => (
+          <img
+            key={s.src}
+            src={s.src}
+            alt={s.alt}
+            draggable={false}
+            aria-hidden={i === index ? undefined : true}
+            style={{ transition: "opacity 1s ease-in-out, transform 6s linear" }}
+            className={`absolute inset-0 h-full w-full object-cover ${
+              i === index ? "scale-[1.06] opacity-100" : "scale-100 opacity-0"
+            }`}
+          />
+        ))}
         {total > 1 && (
           <>
             <button
               onClick={() => goTo(index - 1)}
               aria-label="Previous team photo"
-              className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/40 text-white backdrop-blur transition hover:bg-black/60"
+              className="absolute left-3 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/40 text-white backdrop-blur transition hover:bg-black/60"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => goTo(index + 1)}
               aria-label="Next team photo"
-              className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/40 text-white backdrop-blur transition hover:bg-black/60"
+              className="absolute right-3 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/40 text-white backdrop-blur transition hover:bg-black/60"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
-            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
               {slides.map((s, i) => (
                 <button
                   key={s.src}
@@ -221,7 +255,7 @@ function OurTeamsPage() {
         </div>
       </section>
 
-      {/* Team Photos Slider — Rider Team, IT Team (more teams can be added later) */}
+      {/* Team Photos Slider — Rider, IT, Leadership, Partners, Office & Delivery teams */}
       <section className="bg-[#f4faf6] px-4 py-14">
         <div className="mx-auto max-w-6xl">
           <TeamPhotoSlider
