@@ -313,7 +313,22 @@ export function ReviewsSection() {
   useEffect(() => {
     handleRedirectResult()
       .then((user) => {
-        if (user) setShowForm(true); // auto-open form after successful sign-in
+        if (user) {
+          setShowForm(true); // auto-open form after successful sign-in
+        } else {
+          // Check if redirect was attempted but failed (e.g., cookies blocked)
+          let wasRedirecting = false;
+          try { wasRedirecting = sessionStorage.getItem("rb_review_redirect") === "1"; } catch {}
+          if (wasRedirecting) {
+            try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
+            setShowForm(true);
+            setError(
+              language === "bn"
+                ? "সাইন-ইন সম্পন্ন হয়নি। অনুগ্রহ করে Chrome-এ third-party cookies চালু করে আবার চেষ্টা করুন।"
+                : "Sign-in did not complete. Please enable third-party cookies in Chrome and try again."
+            );
+          }
+        }
       })
       .catch(() => {});
   }, []);
