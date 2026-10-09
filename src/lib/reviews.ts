@@ -185,8 +185,12 @@ export async function handleRedirectResult(): Promise<User | null> {
   if (!firebaseAuth) return null;
   try {
     const result = await getRedirectResult(firebaseAuth);
+    if (result?.user) {
+      console.log("[Reviews] Redirect sign-in successful:", result.user.email);
+    }
     return result?.user || null;
-  } catch {
+  } catch (err) {
+    console.error("[Reviews] Redirect result error:", err);
     return null;
   }
 }
