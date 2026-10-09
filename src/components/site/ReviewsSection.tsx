@@ -3,6 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { LogOut, Loader2, Star } from "lucide-react";
 import {
   getOwnReview,
+  handleRedirectResult,
   signInToReview,
   signOutOfReviews,
   submitReview,
@@ -130,6 +131,10 @@ function WriteReviewCard() {
   const { language } = useLanguage();
   const t = useMemo(() => copy[language], [language]);
   const { user, ready } = useReviewAuthUser();
+  // After Google redirect sign-in, the page reloads — pick up the result.
+  useEffect(() => {
+    handleRedirectResult().catch(() => {});
+  }, []);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -156,12 +161,13 @@ function WriteReviewCard() {
     setError(null);
     setSigningIn(true);
     try {
+      // Redirects the whole page to Google (same flow as customer.ridebangla.bd).
+      // On return, handleRedirectResult() above + onAuthStateChanged restore the user.
       await signInToReview();
     } catch (err) {
       const msg = err instanceof Error ? err.message : t.signInFail;
       console.error("[Reviews] Sign-in error:", err);
       setError(`${t.signInFail} (${msg})`);
-    } finally {
       setSigningIn(false);
     }
   };
