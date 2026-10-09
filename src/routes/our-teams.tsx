@@ -246,7 +246,7 @@ function OurTeamsPage() {
         subtitle={t.headerSubtitle}
         eyebrow={t.headerEyebrow}
         icon={Users2}
-        bgImage="/assets/pages/our-teams-header.jpg"
+        bgImage="/assets/pages/our-teams-header.jpg?v=2"
       />
       <section className="mx-auto max-w-6xl px-4 py-14">
         <div className="grid gap-6 lg:grid-cols-2">
