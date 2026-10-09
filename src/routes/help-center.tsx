@@ -15,6 +15,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { askHelpAi } from "@/lib/help-ai.functions";
 import { useLanguage } from "@/context/LanguageContext";
+import { OFFICIAL_CONTACT } from "@/lib/official-contact";
 
 
 type StaticFaq = {
@@ -25,15 +26,15 @@ type StaticFaq = {
   answer_bn: string;
 };
 
-const OFFICIAL_WHATSAPP = "8801309587749";
+const OFFICIAL_WHATSAPP = OFFICIAL_CONTACT.whatsapp;
 
 const STATIC_FAQS: StaticFaq[] = [
   {
     id: "official-platforms",
     question: "Where can I access Ride Bangla services?",
     question_bn: "Ride Bangla-এর সেবাগুলো কোথা থেকে ব্যবহার করা যাবে?",
-    answer: "Use the official Apps & Platforms page to open the verified Customer, Partner, Rider, Agent and Studio websites.",
-    answer_bn: "অফিশিয়াল Apps & Platforms পেজ থেকে Customer, Partner, Rider, Agent এবং Studio ওয়েবসাইটে প্রবেশ করুন।",
+    answer: "Use the official Apps & Platforms page to open the verified Customer, Partner, Rider, Agent and IT Team websites.",
+    answer_bn: "অফিশিয়াল Apps & Platforms পেজ থেকে Customer, Partner, Rider, Agent এবং IT Team ওয়েবসাইটে প্রবেশ করুন।",
   },
   {
     id: "support-contact",
@@ -58,14 +59,97 @@ const STATIC_FAQS: StaticFaq[] = [
   },
 ];
 
+const copy = {
+  en: {
+    headerTitle: "Help Center",
+    headerSubtitle:
+      "Search FAQs, ask Ride Bangla AI or contact our official support team.",
+    supportCard1Title: "Customer Support",
+    supportCard1Body:
+      "Get help with food, courier, account and website-related questions.",
+    supportCard2Title: "Official Channel",
+    supportCard2Body:
+      "Use only Ride Bangla official contact links for safe communication.",
+    supportCard3Title: "Partner & Rider Help",
+    supportCard3Body:
+      "Support for riders, partners, home kitchens and local businesses.",
+    faqHeading: "Frequently Asked Questions",
+    faqSub: "Search common questions about Ride Bangla services.",
+    contactSupport: "Contact Support",
+    searchPlaceholder: "Search FAQs…",
+    searchAria: "Search FAQs",
+    noResults:
+      "No matching answers. Try different keywords, or contact our support team below.",
+    stillNeedHelp: "Still need help?",
+    supportBlurb:
+      "Our support team can help with customer, rider, partner, courier, food order and business-related questions.",
+    whatsappSupport: "WhatsApp Support",
+    aiHeading: "Ask Ride Bangla AI",
+    aiSub:
+      "Get general guidance while keeping your conversation visible. For account, order, payment or urgent help, contact official Support.",
+    clearChat: "Clear chat",
+    userLabel: "You",
+    aiLabel: "Ride Bangla AI",
+    thinking: "AI is preparing a response…",
+    askPlaceholder: "Write your question…",
+    askAria: "Ask the Ride Bangla AI assistant",
+    send: "Send",
+    sendLoading: "Thinking…",
+    privacyNote:
+      "Press Enter to send and Shift + Enter for a new line. Do not share passwords, OTP codes, payment credentials or other sensitive data.",
+    aiErrorMessage:
+      "Could not reach AI support. Please try again or contact official Support.",
+  },
+  bn: {
+    headerTitle: "সহায়তা কেন্দ্র",
+    headerSubtitle:
+      "FAQ খুঁজুন, Ride Bangla AI-কে জিজ্ঞাসা করুন অথবা আমাদের অফিসিয়াল সাপোর্ট টিমের সঙ্গে যোগাযোগ করুন।",
+    supportCard1Title: "গ্রাহক সাপোর্ট",
+    supportCard1Body:
+      "ফুড, কুরিয়ার, অ্যাকাউন্ট ও ওয়েবসাইট-সম্পর্কিত প্রশ্নে সহায়তা নিন।",
+    supportCard2Title: "অফিসিয়াল চ্যানেল",
+    supportCard2Body:
+      "নিরাপদ যোগাযোগের জন্য শুধু Ride Bangla-এর অফিসিয়াল কন্টাক্ট লিংক ব্যবহার করুন।",
+    supportCard3Title: "পার্টনার ও রাইডার সহায়তা",
+    supportCard3Body:
+      "রাইডার, পার্টনার, হোম কিচেন ও স্থানীয় ব্যবসার জন্য সহায়তা।",
+    faqHeading: "প্রায়শ জিজ্ঞাসিত প্রশ্ন",
+    faqSub: "Ride Bangla সেবা নিয়ে সাধারণ প্রশ্নগুলো খুঁজুন।",
+    contactSupport: "সাপোর্টের সঙ্গে যোগাযোগ",
+    searchPlaceholder: "FAQ খুঁজুন…",
+    searchAria: "FAQ খুঁজুন",
+    noResults:
+      "কোনো মিল পাওয়া যায়নি। ভিন্ন কীওয়ার্ড দিয়ে চেষ্টা করুন অথবা নিচে আমাদের সাপোর্ট টিমের সঙ্গে যোগাযোগ করুন।",
+    stillNeedHelp: "আরও সাহায্য দরকার?",
+    supportBlurb:
+      "গ্রাহক, রাইডার, পার্টনার, কুরিয়ার, ফুড অর্ডার ও ব্যবসা-সম্পর্কিত প্রশ্নে আমাদের সাপোর্ট টিম সাহায্য করতে পারবে।",
+    whatsappSupport: "WhatsApp সাপোর্ট",
+    aiHeading: "Ride Bangla AI-কে জিজ্ঞাসা করুন",
+    aiSub:
+      "কথোপকথন দৃশ্যমান রেখে সাধারণ নির্দেশনা নিন। অ্যাকাউন্ট, অর্ডার, পেমেন্ট বা জরুরি সহায়তার জন্য অফিসিয়াল সাপোর্টের সঙ্গে যোগাযোগ করুন।",
+    clearChat: "চ্যাট মুছুন",
+    userLabel: "আপনি",
+    aiLabel: "Ride Bangla AI",
+    thinking: "AI উত্তর তৈরি করছে…",
+    askPlaceholder: "আপনার প্রশ্ন লিখুন…",
+    askAria: "Ride Bangla AI সহকারীকে জিজ্ঞাসা করুন",
+    send: "পাঠান",
+    sendLoading: "চিন্তা করছে…",
+    privacyNote:
+      "পাঠাতে Enter চাপুন, নতুন লাইনের জন্য Shift + Enter চাপুন। পাসওয়ার্ড, OTP কোড, পেমেন্ট তথ্য বা অন্য সংবেদনশীল ডেটা শেয়ার করবেন না।",
+    aiErrorMessage:
+      "AI সাপোর্টে পৌঁছানো যাচ্ছে না। আবার চেষ্টা করুন অথবা অফিসিয়াল সাপোর্টের সঙ্গে যোগাযোগ করুন।",
+  },
+};
+
 export const Route = createFileRoute("/help-center")({
   head: () => ({
     meta: [
-      { title: "Help Center — Ride Bangla" },
+      { title: "Help Center — Ride Bangla Support, FAQs & Contact Info" },
       {
         name: "description",
         content:
-          "Frequently asked questions and official support resources for Ride Bangla customers, riders, partners and businesses.",
+          "Find answers in the Ride Bangla Help Center — FAQs, AI chat support and official resources for customers, riders, partners, agents and businesses across Bangladesh.",
       },
       { property: "og:title", content: "Help Center — Ride Bangla" },
       {
@@ -75,14 +159,20 @@ export const Route = createFileRoute("/help-center")({
       },
       { property: "og:url", content: "https://ridebangla.bd/help-center" },
     ],
-    links: [{ rel: "canonical", href: "https://ridebangla.bd/help-center" }],
+    links: [
+      { rel: "canonical", href: "https://ridebangla.bd/help-center" },
+      { rel: "alternate", hreflang: "en", href: "https://ridebangla.bd/help-center" },
+      { rel: "alternate", hreflang: "bn", href: "https://ridebangla.bd/help-center?lang=bn" },
+      { rel: "alternate", hreflang: "x-default", href: "https://ridebangla.bd/help-center" },
+    ],
   }),
   component: HelpCenterPage,
 });
 
 function HelpCenterPage() {
   const [q, setQ] = useState("");
-  const { pick } = useLanguage();
+  const { pick, language } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
 
   const faqs = STATIC_FAQS;
   const whatsappNumber = OFFICIAL_WHATSAPP;
@@ -103,26 +193,27 @@ function HelpCenterPage() {
   return (
     <SiteLayout>
       <PageHeader
-        title="Help Center"
-        subtitle="Search FAQs, ask Ride Bangla AI or contact our official support team."
+        title={t.headerTitle}
+        subtitle={t.headerSubtitle}
+        bgImage="/assets/pages/help-center-header.jpg"
       />
 
       <section className="mx-auto max-w-5xl px-4 py-10">
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <SupportCard
             icon={<Headphones className="h-5 w-5" />}
-            title="Customer Support"
-            body="Get help with food, courier, account and website-related questions."
+            title={t.supportCard1Title}
+            body={t.supportCard1Body}
           />
           <SupportCard
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="Official Channel"
-            body="Use only Ride Bangla official contact links for safe communication."
+            title={t.supportCard2Title}
+            body={t.supportCard2Body}
           />
           <SupportCard
             icon={<MessageSquare className="h-5 w-5" />}
-            title="Partner & Rider Help"
-            body="Support for riders, partners, home kitchens and local businesses."
+            title={t.supportCard3Title}
+            body={t.supportCard3Body}
           />
         </div>
 
@@ -132,10 +223,10 @@ function HelpCenterPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-bold text-foreground">
-                Frequently Asked Questions
+                {t.faqHeading}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Search common questions about Ride Bangla services.
+                {t.faqSub}
               </p>
             </div>
 
@@ -145,7 +236,7 @@ function HelpCenterPage() {
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-secondary"
             >
               <MessageSquare className="h-4 w-4" />
-              Contact Support
+              {t.contactSupport}
             </Link>
           </div>
 
@@ -155,8 +246,8 @@ function HelpCenterPage() {
               type="search"
               value={q}
               onChange={(event) => setQ(event.target.value)}
-              placeholder="Search FAQs…"
-              aria-label="Search FAQs"
+              placeholder={t.searchPlaceholder}
+              aria-label={t.searchAria}
               className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-sm outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20"
             />
           </div>
@@ -164,8 +255,7 @@ function HelpCenterPage() {
           <div className="mt-6 space-y-3">
             {filtered.length === 0 ? (
               <p className="rounded-lg border border-dashed border-border bg-background p-6 text-center text-sm text-muted-foreground">
-                No matching answers. Try different keywords, or contact our
-                support team below.
+                {t.noResults}
               </p>
             ) : (
               filtered.map((faq) => (
@@ -191,12 +281,11 @@ function HelpCenterPage() {
 
         <div className="mt-12 rounded-2xl border border-brand-green/30 bg-brand-green-soft p-6 text-center shadow-sm sm:p-8">
           <h2 className="text-xl font-bold text-foreground">
-            Still need help?
+            {t.stillNeedHelp}
           </h2>
 
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-            Our support team can help with customer, rider, partner, courier,
-            food order and business-related questions.
+            {t.supportBlurb}
           </p>
 
           <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
@@ -205,7 +294,7 @@ function HelpCenterPage() {
               search={{ source: "Help Center" }}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-green-dark"
             >
-              Contact Support <ArrowRight className="h-4 w-4" />
+              {t.contactSupport} <ArrowRight className="h-4 w-4" />
             </Link>
 
             {whatsappNumber ? (
@@ -216,7 +305,7 @@ function HelpCenterPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand-green/30 bg-background px-5 py-3 text-sm font-semibold text-brand-green shadow-sm transition hover:bg-white"
               >
                 <FaWhatsapp className="h-4 w-4" />
-                WhatsApp Support
+                {t.whatsappSupport}
               </a>
             ) : null}
           </div>
@@ -270,6 +359,8 @@ function persistAiMessages(messages: AiChatMessage[]) {
 
 function AiAssistant() {
   const ask = useServerFn(askHelpAi);
+  const { language } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   // Start with the same empty state on the server and first client render.
@@ -347,7 +438,7 @@ function AiAssistant() {
         setError(response.error);
       }
     } catch {
-      const message = "Could not reach AI support. Please try again or contact official Support.";
+      const message = t.aiErrorMessage;
       setMessages((current) => [
         ...current,
         {
@@ -381,11 +472,10 @@ function AiAssistant() {
 
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-bold text-foreground sm:text-lg">
-            Ask Ride Bangla AI
+            {t.aiHeading}
           </h2>
           <p className="text-xs leading-5 text-muted-foreground">
-            Get general guidance while keeping your conversation visible. For
-            account, order, payment or urgent help, contact official Support.
+            {t.aiSub}
           </p>
         </div>
 
@@ -396,7 +486,7 @@ function AiAssistant() {
             disabled={loading}
             className="shrink-0 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-brand-green/40 hover:text-brand-green disabled:opacity-60"
           >
-            Clear chat
+            {t.clearChat}
           </button>
         ) : null}
       </div>
@@ -419,7 +509,7 @@ function AiAssistant() {
                 }`}
               >
                 <div className="mb-1 text-[10px] font-bold uppercase tracking-wider opacity-75">
-                  {message.role === "user" ? "You" : "Ride Bangla AI"}
+                  {message.role === "user" ? t.userLabel : t.aiLabel}
                 </div>
                 {message.text}
               </div>
@@ -430,7 +520,7 @@ function AiAssistant() {
             <div className="flex justify-start">
               <div className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                AI is preparing a response…
+                {t.thinking}
               </div>
             </div>
           ) : null}
@@ -454,8 +544,8 @@ function AiAssistant() {
           }}
           maxLength={2000}
           rows={1}
-          placeholder="Write your question…"
-          aria-label="Ask the Ride Bangla AI assistant"
+          placeholder={t.askPlaceholder}
+          aria-label={t.askAria}
           className="max-h-60 min-h-12 w-full resize-none overflow-y-auto rounded-lg border border-border bg-background px-3 py-3 text-sm text-foreground shadow-sm outline-none placeholder:text-muted-foreground/70 focus:border-brand-green focus:ring-2 focus:ring-brand-green/25"
         />
 
@@ -469,13 +559,12 @@ function AiAssistant() {
           ) : (
             <Send className="h-4 w-4" />
           )}
-          {loading ? "Thinking…" : "Send"}
+          {loading ? t.sendLoading : t.send}
         </button>
       </form>
 
       <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-        Press Enter to send and Shift + Enter for a new line. Do not share
-        passwords, OTP codes, payment credentials or other sensitive data.
+        {t.privacyNote}
       </p>
 
       {error ? (
@@ -486,7 +575,7 @@ function AiAssistant() {
             search={{ source: "Help Center" }}
             className="font-semibold text-brand-red hover:underline"
           >
-            Contact Support
+            {t.contactSupport}
           </Link>
         </div>
       ) : null}

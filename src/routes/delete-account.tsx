@@ -7,14 +7,19 @@ const supportEmail = "support@ridebangla.bd";
 export const Route = createFileRoute("/delete-account")({
   head: () => ({
     meta: [
-      { title: "Delete Account & Data — Ride Bangla" },
+      { title: "Delete Account & Data — Ride Bangla Privacy & Help Guide" },
       {
         name: "description",
         content:
-          "Instructions for Ride Bangla users to request deletion of their account and personal data.",
+          "Follow these steps to request deletion of your Ride Bangla account and personal data, including Facebook Login data and Ride Bangla account service information.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://ridebangla.bd/delete-account" }],
+    links: [
+      { rel: "canonical", href: "https://ridebangla.bd/delete-account" },
+      { rel: "alternate", hreflang: "en", href: "https://ridebangla.bd/delete-account" },
+      { rel: "alternate", hreflang: "bn", href: "https://ridebangla.bd/delete-account?lang=bn" },
+      { rel: "alternate", hreflang: "x-default", href: "https://ridebangla.bd/delete-account" },
+    ],
   }),
   component: DeleteAccountPage,
 });
