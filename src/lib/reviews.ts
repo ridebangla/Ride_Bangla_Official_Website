@@ -14,7 +14,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
-import { signInWithPopup, signOut, onAuthStateChanged, type User } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, type User } from "firebase/auth";
 import { firebaseAuth, firebaseDb, googleAuthProvider } from "@/integrations/firebase/client";
 
 export type Review = {
@@ -169,8 +169,26 @@ export function useReviewAuthUser() {
 
 export async function signInToReview(): Promise<User> {
   if (!firebaseAuth) throw new Error("Reviews are not available right now. Please try again shortly.");
+  // Mobile browsers block popups — use redirect instead for reliable sign-in
+  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  if (isMobile) {
+    await signInWithRedirect(firebaseAuth, googleAuthProvider);
+    // Redirect will reload the page; user comes back signed in
+    throw new Error("REDIRECTING");
+  }
   const result = await signInWithPopup(firebaseAuth, googleAuthProvider);
   return result.user;
+}
+
+/** Call on page load to complete redirect-based sign-in (mobile) */
+export async function handleRedirectResult(): Promise<User | null> {
+  if (!firebaseAuth) return null;
+  try {
+    const result = await getRedirectResult(firebaseAuth);
+    return result?.user || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function signOutOfReviews(): Promise<void> {
