@@ -172,6 +172,8 @@ export async function signInToReview(): Promise<User> {
   // Mobile browsers block popups — use redirect instead for reliable sign-in
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   if (isMobile) {
+    // Mark that we're starting a redirect, so we can detect if it fails on return
+    try { sessionStorage.setItem("rb_review_redirect", "1"); } catch {}
     await signInWithRedirect(firebaseAuth, googleAuthProvider);
     // Redirect will reload the page; user comes back signed in
     throw new Error("REDIRECTING");
@@ -187,10 +189,21 @@ export async function handleRedirectResult(): Promise<User | null> {
     const result = await getRedirectResult(firebaseAuth);
     if (result?.user) {
       console.log("[Reviews] Redirect sign-in successful:", result.user.email);
+      // Clear redirect flag on success
+      try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
+    } else {
+      // Check if we were expecting a redirect result
+      let wasRedirecting = false;
+      try { wasRedirecting = sessionStorage.getItem("rb_review_redirect") === "1"; } catch {}
+      if (wasRedirecting) {
+        console.error("[Reviews] Redirect was initiated but no result found. Possible causes: third-party cookies blocked, or browser cleared session.");
+        try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
+      }
     }
     return result?.user || null;
   } catch (err) {
     console.error("[Reviews] Redirect result error:", err);
+    try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
     return null;
   }
 }
