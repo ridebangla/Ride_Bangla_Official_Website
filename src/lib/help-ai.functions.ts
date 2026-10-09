@@ -14,6 +14,12 @@ const InputSchema = z.object({
 const SYSTEM_PROMPT = `You are the official Ride Bangla AI Help Assistant for ridebangla.bd.
 Ride Bangla is a Bangladesh-based multi-service technology ecosystem covering ride sharing, food delivery, courier delivery, marketplace services (including groceries, daily essentials and medicine), customer, rider, partner and agent platforms, and Ride Bangla IT digital services.
 
+Service coverage (IMPORTANT - be accurate):
+- Currently serving: Faridpur (primary) and Shariatpur districts
+- Expanding to all of Bangladesh gradually - nationwide launch coming soon, not yet available everywhere
+- Some deliveries are confirmed from Faridpur on a case-by-case basis
+- Website is still being completed; some sections show "coming soon"
+
 Rules:
 - Answer in the user's language (Bangla or English) using concise, clear and professional wording.
 - Help only with general Ride Bangla services, apps, onboarding, account guidance, support routes and published policies.
@@ -25,10 +31,12 @@ Rules:
 export const askHelpAi = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
-    const key = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const groqKey = process.env.GROQ_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const groqModel = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-    if (!key) {
+    if (!groqKey && !geminiKey) {
       return {
         ok: false as const,
         error: "AI support is temporarily unavailable. Please use official Support.",
@@ -43,49 +51,85 @@ export const askHelpAi = createServerFn({ method: "POST" })
     const timeoutId = setTimeout(() => controller.abort(), 20_000);
 
     try {
-      const contents = [
-        ...data.history.map((item) => ({
-          role: item.role,
-          parts: [{ text: item.text }],
-        })),
-        { role: "user" as const, parts: [{ text: data.question }] },
-      ];
+      // Build OpenAI-style messages for Groq, or Gemini-style contents
+      const historyMessages = data.history.map((item) => ({
+        role: item.role === "model" ? "assistant" : "user",
+        content: item.text,
+      }));
 
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,
-        {
+      let answer: string | null = null;
+
+      // Try Groq first (free tier, no billing required)
+      if (groqKey) {
+        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${groqKey}`,
+          },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            contents,
-            generationConfig: { temperature: 0.25, maxOutputTokens: 800 },
+            model: groqModel,
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              ...historyMessages,
+              { role: "user", content: data.question },
+            ],
+            temperature: 0.3,
+            max_tokens: 800,
           }),
           signal: controller.signal,
-        },
-      );
+        });
 
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        return {
-          ok: false as const,
-          error: "AI support is temporarily unavailable. Please try again or use official Support.",
-        };
+        if (groqRes.ok) {
+          const groqJson = (await groqRes.json()) as {
+            choices?: Array<{ message?: { content?: string } }>;
+          };
+          answer = groqJson.choices?.[0]?.message?.content?.trim() || null;
+        }
       }
 
-      const json = (await res.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-      };
-      const answer = json.candidates?.[0]?.content?.parts
-        ?.map((part) => part.text ?? "")
-        .join("")
-        .trim();
+      // Fallback to Gemini if Groq failed or no Groq key
+      if (!answer && geminiKey) {
+        const contents = [
+          ...data.history.map((item) => ({
+            role: item.role,
+            parts: [{ text: item.text }],
+          })),
+          { role: "user" as const, parts: [{ text: data.question }] },
+        ];
+
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent?key=${encodeURIComponent(geminiKey)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+              contents,
+              generationConfig: { temperature: 0.25, maxOutputTokens: 800 },
+            }),
+            signal: controller.signal,
+          },
+        );
+
+        if (res.ok) {
+          const json = (await res.json()) as {
+            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+          };
+          answer =
+            json.candidates?.[0]?.content?.parts
+              ?.map((part) => part.text ?? "")
+              .join("")
+              .trim() || null;
+        }
+      }
+
+      clearTimeout(timeoutId);
 
       if (!answer) {
         return {
           ok: false as const,
-          error: "AI support could not generate an answer. Please use official Support.",
+          error: "AI support is temporarily unavailable. Please try again or use official Support.",
         };
       }
 
