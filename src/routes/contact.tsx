@@ -20,9 +20,8 @@ import {
 } from "lucide-react";
 import { FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { SiteLayout } from "@/components/layout/SiteLayout";
+import { SiteLayout, PageHeader } from "@/components/layout/SiteLayout";
 import { submitWebsiteContact } from "@/lib/website-data";
-import { Logo } from "@/components/site/Logo";
 import { useLanguage } from "@/context/LanguageContext";
 
 import { OFFICIAL_CONTACT } from "@/lib/official-contact";
@@ -361,23 +360,11 @@ function ContactPage() {
   return (
     <SiteLayout>
       <main className="min-h-screen bg-white">
-        <section className="bg-gradient-to-br from-green-50 via-white to-red-50 px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-6xl text-center">
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-white p-2 shadow-sm ring-1 ring-green-100">
-              <Logo className="h-full w-full object-contain" />
-            </div>
-
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-green-700">
-              {t.heroEyebrow}
-            </p>
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
-              {t.heroTitle}
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-gray-600 sm:text-lg">
-              {t.heroBody}
-            </p>
-          </div>
-        </section>
+        <PageHeader
+          title={t.heroTitle}
+          subtitle={t.heroBody}
+          eyebrow={t.heroEyebrow}
+        />
 
         <section className="px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
