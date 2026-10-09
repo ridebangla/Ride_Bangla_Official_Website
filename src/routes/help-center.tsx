@@ -1,4 +1,3 @@
-// Force rebuild: Vercel cache refresh 2026-10-09
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -170,6 +169,14 @@ export const Route = createFileRoute("/help-center")({
   component: HelpCenterPage,
 });
 
+
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return <>{children}</>;
+}
+
 function HelpCenterPage() {
   const [q, setQ] = useState("");
   const { pick, language } = useLanguage();
@@ -218,7 +225,9 @@ function HelpCenterPage() {
           />
         </div>
 
-        <AiAssistant />
+        <ClientOnly>
+          <AiAssistant />
+        </ClientOnly>
 
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
