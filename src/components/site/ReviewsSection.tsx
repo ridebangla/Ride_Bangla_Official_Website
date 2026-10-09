@@ -3,7 +3,6 @@ import { formatDistanceToNow } from "date-fns";
 import { LogOut, Loader2, Star } from "lucide-react";
 import {
   getOwnReview,
-  handleRedirectResult,
   signInToReview,
   signOutOfReviews,
   submitReview,
@@ -159,9 +158,6 @@ function WriteReviewCard() {
     try {
       await signInToReview();
     } catch (err) {
-      // REDIRECTING means mobile redirect started — page will reload, no error to show
-      if (err instanceof Error && err.message === "REDIRECTING") return;
-      // Show actual error for debugging
       const msg = err instanceof Error ? err.message : t.signInFail;
       console.error("[Reviews] Sign-in error:", err);
       setError(`${t.signInFail} (${msg})`);
@@ -306,32 +302,6 @@ export function ReviewsSection() {
   const { reviews, loading, count, average } = useReviews(12);
   const [showForm, setShowForm] = useState(false);
   const roundedAverage = useMemo(() => Math.round(average * 10) / 10, [average]);
-
-  // Complete mobile redirect sign-in when returning from Google.
-  // Must run at section level (always mounted) — WriteReviewCard only mounts
-  // when the form is open, so the redirect result would be lost otherwise.
-  useEffect(() => {
-    handleRedirectResult()
-      .then((user) => {
-        if (user) {
-          setShowForm(true); // auto-open form after successful sign-in
-        } else {
-          // Check if redirect was attempted but failed (e.g., cookies blocked)
-          let wasRedirecting = false;
-          try { wasRedirecting = sessionStorage.getItem("rb_review_redirect") === "1"; } catch {}
-          if (wasRedirecting) {
-            try { sessionStorage.removeItem("rb_review_redirect"); } catch {}
-            setShowForm(true);
-            setError(
-              language === "bn"
-                ? "সাইন-ইন সম্পন্ন হয়নি। অনুগ্রহ করে Chrome-এ third-party cookies চালু করে আবার চেষ্টা করুন।"
-                : "Sign-in did not complete. Please enable third-party cookies in Chrome and try again."
-            );
-          }
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const scriptId = "reviews-structured-data";
