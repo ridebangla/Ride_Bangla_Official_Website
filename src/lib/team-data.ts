@@ -76,6 +76,12 @@ export const leadership: TeamMember[] = [
     x_url: null,
     whatsapp_number: "+8801825234644",
     wechat_id: null,
+    bio: {
+      en:
+        "Tabassum Nisha is the IT Team Director of Ride Bangla. She leads and directs all technology work across the Ride Bangla ecosystem — every website, app, and digital platform is built under her direction. Her leadership drives the company's technology vision, from development to deployment, ensuring world-class digital experiences for millions of users.",
+      bn:
+        "তাবাসসুম নিশা রাইড বাংলার আইটি টিম ডিরেক্টর। তিনি রাইড বাংলা ইকোসিস্টেমের সমস্ত প্রযুক্তিগত কাজের নেতৃত্ব ও দিকনির্দেশনা দেন — প্রতিটি ওয়েবসাইট, অ্যাপ এবং ডিজিটাল প্ল্যাটফর্ম তাঁর নির্দেশনায় তৈরি হয়। তাঁর নেতৃত্ব কোম্পানির প্রযুক্তি ভিশনকে এগিয়ে নিয়ে যায়, ডেভেলপমেন্ট থেকে ডিপ্লয়মেন্ট পর্যন্ত, লক্ষ লক্ষ ব্যবহারকারীর জন্য বিশ্বমানের ডিজিটাল অভিজ্ঞতা নিশ্চিত করে।",
+    },
   },
 
 ];
