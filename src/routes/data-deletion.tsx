@@ -7,14 +7,19 @@ const supportEmail = "support@ridebangla.bd";
 export const Route = createFileRoute("/data-deletion")({
   head: () => ({
     meta: [
-      { title: "Data Deletion Instructions — Ride Bangla" },
+      { title: "Data Deletion — Delete Your Ride Bangla Account Data" },
       {
         name: "description",
         content:
           "Instructions for Ride Bangla users to request deletion of personal data connected with Facebook Login or Ride Bangla account services.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://ridebangla.bd/data-deletion" }],
+    links: [
+      { rel: "canonical", href: "https://ridebangla.bd/data-deletion" },
+      { rel: "alternate", hreflang: "en", href: "https://ridebangla.bd/data-deletion" },
+      { rel: "alternate", hreflang: "bn", href: "https://ridebangla.bd/data-deletion?lang=bn" },
+      { rel: "alternate", hreflang: "x-default", href: "https://ridebangla.bd/data-deletion" },
+    ],
   }),
   component: DataDeletionPage,
 });

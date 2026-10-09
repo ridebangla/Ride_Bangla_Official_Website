@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-// Loaded only when a webhook POST actually needs the AI bot. This keeps the\n// Firebase Admin / bot dependency tree out of normal page SSR.\n
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { generateReply } from "@/lib/lib.bot-brain";
+
 // ── Env vars you must add in Vercel (Project Settings → Environment Variables) ──
 // WEBHOOK_VERIFY_TOKEN        -> any string you invent, e.g. "ridebangla_verify_2026"
+// META_APP_SECRET             -> Meta App → Settings → Basic → App Secret (for X-Hub-Signature-256 verification)
 // PAGE_ACCESS_TOKEN           -> Meta App → Messenger → Access Tokens
 // WHATSAPP_ACCESS_TOKEN       -> Meta App → WhatsApp → API Setup
 // WHATSAPP_PHONE_NUMBER_ID    -> Meta App → WhatsApp → API Setup
@@ -11,6 +14,21 @@ import type {} from "@tanstack/react-start";
 // None of these should ever be prefixed with VITE_.
 
 const GRAPH_VERSION = "v21.0";
+
+/** Verify Meta's X-Hub-Signature-256 header to reject forged webhook POSTs. */
+function verifyMetaSignature(rawBody: string, signatureHeader: string | null): boolean {
+  const appSecret = process.env.META_APP_SECRET;
+  // If no app secret configured, skip verification (dev mode) — log a warning.
+  if (!appSecret) {
+    console.warn("META_APP_SECRET not set — skipping webhook signature verification");
+    return true;
+  }
+  if (!signatureHeader?.startsWith("sha256=")) return false;
+  const expected = createHmac("sha256", appSecret).update(rawBody, "utf8").digest("hex");
+  const received = signatureHeader.slice("sha256=".length);
+  if (expected.length !== received.length) return false;
+  return timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(received, "utf8"));
+}
 
 async function sendMessengerReply(recipientId: string, text: string) {
   const token = process.env.PAGE_ACCESS_TOKEN;
@@ -59,8 +77,19 @@ export const Route = createFileRoute("/api/webhook")({
       },
 
       POST: async ({ request }) => {
-        const body = await request.json();
-        const { generateReply } = await import("@/lib/bot-brain");
+        // Verify Meta signature BEFORE parsing — rejects forged/spam POSTs.
+        const rawBody = await request.text();
+        const signature = request.headers.get("x-hub-signature-256");
+        if (!verifyMetaSignature(rawBody, signature)) {
+          return new Response("Forbidden", { status: 403 });
+        }
+
+        let body: any;
+        try {
+          body = JSON.parse(rawBody);
+        } catch {
+          return new Response("Bad Request", { status: 400 });
+        }
 
         try {
           if (body.object === "page") {

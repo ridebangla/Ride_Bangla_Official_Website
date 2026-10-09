@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -18,18 +18,23 @@ import {
   ShieldCheck,
   Youtube,
 } from "lucide-react";
+import { FaTiktok } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { submitWebsiteContact } from "@/lib/website-data";
 import { Logo } from "@/components/site/Logo";
+import { useLanguage } from "@/context/LanguageContext";
+
+import { OFFICIAL_CONTACT } from "@/lib/official-contact";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Ride Bangla" },
+      { title: "Contact Ride Bangla — Support, Riders, Partners & Business" },
       {
         name: "description",
         content:
-          "Contact Ride Bangla through official website, email, phone, WhatsApp and social media channels.",
+          "Contact Ride Bangla for customer support, rider help, partner inquiries and business — via website, email, phone, WhatsApp and official social media channels.",
       },
       { property: "og:title", content: "Contact — Ride Bangla" },
       {
@@ -39,7 +44,12 @@ export const Route = createFileRoute("/contact")({
       },
       { property: "og:url", content: "https://ridebangla.bd/contact" },
     ],
-    links: [{ rel: "canonical", href: "https://ridebangla.bd/contact" }],
+    links: [
+      { rel: "canonical", href: "https://ridebangla.bd/contact" },
+      { rel: "alternate", hreflang: "en", href: "https://ridebangla.bd/contact" },
+      { rel: "alternate", hreflang: "bn", href: "https://ridebangla.bd/contact?lang=bn" },
+      { rel: "alternate", hreflang: "x-default", href: "https://ridebangla.bd/contact" },
+    ],
   }),
   component: ContactPage,
 });
@@ -62,81 +72,240 @@ const initialValues: FormValues = {
   message: "",
 };
 
+const copy = {
+  en: {
+    heroEyebrow: "Contact Ride Bangla",
+    heroTitle: "We are here to help",
+    heroBody:
+      "Connect with Ride Bangla through our official website, email, support, phone, WhatsApp and social media channels.",
+    titleOfficialWebsite: "Official Website",
+    typeOpenWebsite: "Open Website",
+    titleOfficialEmail: "Official Email",
+    typeSendEmail: "Send Email",
+    titleSupportEmail: "Support Email",
+    typeGetSupport: "Get Support",
+    titlePhone: "Phone",
+    typeCallNow: "Call Now",
+    titleWhatsApp: "WhatsApp",
+    typeChatOnWhatsApp: "Chat on WhatsApp",
+    titleFacebook: "Facebook",
+    titleInstagram: "Instagram",
+    titleYouTube: "YouTube",
+    titleTikTok: "TikTok",
+    titleXTwitter: "X / Twitter",
+    typeFollowUs: "Follow Us",
+    typeSubscribe: "Subscribe",
+    typeFollowCeo: "Follow CEO",
+    titleLocation: "Location",
+    typeViewMap: "View Map",
+    addressLabel:
+      "Faridpur, Bangladesh (Head Office) — Serving All 64 Districts of Bangladesh",
+    formEyebrow: "Send Message",
+    formTitle: "Contact our support team",
+    formBody:
+      "Fill out this form and your message will go directly to the Ride Bangla admin support team.",
+    channelsTitle: "Official response channels",
+    channelsBody:
+      "Support team can review your message from the admin panel and contact you by email, phone or WhatsApp.",
+    routingTitle: "Support routing",
+    routingBody:
+      "Messages are routed to the appropriate Ride Bangla support, operations, partnership or technical team based on the selected department and subject.",
+    browseHelp: "Browse Help Center",
+    labelName: "Full Name",
+    phName: "Your full name",
+    labelPhone: "Phone / WhatsApp",
+    phPhone: "+880 1XXX-XXXXXX",
+    labelEmail: "Email",
+    phEmail: "you@example.com",
+    labelDepartment: "Department",
+    labelSubject: "Subject",
+    phSubject: "How can we help?",
+    labelMessage: "Message",
+    phMessage: "Write your message here...",
+    deptGeneral: "General Support",
+    deptFood: "Food Delivery",
+    deptCourier: "Courier Service",
+    deptRider: "Rider Support",
+    deptPartner: "Partner Support",
+    deptBusiness: "Business Partnership",
+    deptTechnical: "Technical Issue",
+    deptWebApp: "Website / App Issue",
+    submitSending: "Sending...",
+    submitSend: "Send Message",
+    errorRequired: "Please fill in your name, email and message.",
+    errorGeneric: "Could not send message. Please try again.",
+    successBody:
+      "Message sent successfully. Our support team will contact you as soon as possible.",
+    supportEyebrow: "Official Support",
+    supportTitle: "Need help with Ride Bangla?",
+    supportBody:
+      "For Food Delivery, Courier, partnership, rider, partner, support or business communication, please contact us through our official channels only.",
+    emailSupport: "Email Support",
+    whatsappButton: "WhatsApp",
+  },
+  bn: {
+    heroEyebrow: "Ride Bangla-এর সঙ্গে যোগাযোগ",
+    heroTitle: "আমরা সাহায্যের জন্য এখানে আছি",
+    heroBody:
+      "অফিসিয়াল ওয়েবসাইট, ইমেইল, সাপোর্ট, ফোন, WhatsApp ও সোশ্যাল মিডিয়া চ্যানেলের মাধ্যমে Ride Bangla-এর সঙ্গে যুক্ত হোন।",
+    titleOfficialWebsite: "অফিসিয়াল ওয়েবসাইট",
+    typeOpenWebsite: "ওয়েবসাইট খুলুন",
+    titleOfficialEmail: "অফিসিয়াল ইমেইল",
+    typeSendEmail: "ইমেইল পাঠান",
+    titleSupportEmail: "সাপোর্ট ইমেইল",
+    typeGetSupport: "সাপোর্ট নিন",
+    titlePhone: "ফোন",
+    typeCallNow: "এখনই কল করুন",
+    titleWhatsApp: "WhatsApp",
+    typeChatOnWhatsApp: "WhatsApp-এ চ্যাট করুন",
+    titleFacebook: "Facebook",
+    titleInstagram: "Instagram",
+    titleYouTube: "YouTube",
+    titleTikTok: "TikTok",
+    titleXTwitter: "X / Twitter",
+    typeFollowUs: "ফলো করুন",
+    typeSubscribe: "সাবস্ক্রাইব করুন",
+    typeFollowCeo: "CEO-কে ফলো করুন",
+    titleLocation: "অবস্থান",
+    typeViewMap: "ম্যাপ দেখুন",
+    addressLabel:
+      "ফরিদপুর, বাংলাদেশ (হেড অফিস) — বাংলাদেশের সব ৬৪ জেলায় সেবা",
+    formEyebrow: "মেসেজ পাঠান",
+    formTitle: "আমাদের সাপোর্ট টিমের সঙ্গে যোগাযোগ করুন",
+    formBody:
+      "এই ফর্মটি পূরণ করুন — আপনার মেসেজ সরাসরি Ride Bangla অ্যাডমিন সাপোর্ট টিমের কাছে পৌঁছাবে।",
+    channelsTitle: "অফিসিয়াল রেসপন্স চ্যানেল",
+    channelsBody:
+      "সাপোর্ট টিম অ্যাডমিন প্যানেল থেকে আপনার মেসেজ দেখে ইমেইল, ফোন বা WhatsApp-এর মাধ্যমে আপনার সঙ্গে যোগাযোগ করতে পারবে।",
+    routingTitle: "সাপোর্ট রাউটিং",
+    routingBody:
+      "নির্বাচিত ডিপার্টমেন্ট ও সাবজেক্ট অনুযায়ী মেসেজগুলো যথাযথ Ride Bangla সাপোর্ট, অপারেশন, পার্টনারশিপ বা টেকনিক্যাল টিমের কাছে পাঠানো হয়।",
+    browseHelp: "হেল্প সেন্টার দেখুন",
+    labelName: "পুরো নাম",
+    phName: "আপনার পুরো নাম",
+    labelPhone: "ফোন / WhatsApp",
+    phPhone: "+880 1XXX-XXXXXX",
+    labelEmail: "ইমেইল",
+    phEmail: "you@example.com",
+    labelDepartment: "ডিপার্টমেন্ট",
+    labelSubject: "সাবজেক্ট",
+    phSubject: "আমরা কীভাবে সাহায্য করতে পারি?",
+    labelMessage: "মেসেজ",
+    phMessage: "আপনার মেসেজ এখানে লিখুন...",
+    deptGeneral: "জেনারেল সাপোর্ট",
+    deptFood: "ফুড ডেলিভারি",
+    deptCourier: "কুরিয়ার সার্ভিস",
+    deptRider: "রাইডার সাপোর্ট",
+    deptPartner: "পার্টনার সাপোর্ট",
+    deptBusiness: "বিজনেস পার্টনারশিপ",
+    deptTechnical: "টেকনিক্যাল সমস্যা",
+    deptWebApp: "ওয়েবসাইট / অ্যাপ সমস্যা",
+    submitSending: "পাঠানো হচ্ছে...",
+    submitSend: "মেসেজ পাঠান",
+    errorRequired: "আপনার নাম, ইমেইল ও মেসেজ লিখুন।",
+    errorGeneric: "মেসেজ পাঠানো যায়নি। আবার চেষ্টা করুন।",
+    successBody:
+      "মেসেজ সফলভাবে পাঠানো হয়েছে। আমাদের সাপোর্ট টিম যত তাড়াতাড়ি সম্ভব আপনার সঙ্গে যোগাযোগ করবে।",
+    supportEyebrow: "অফিসিয়াল সাপোর্ট",
+    supportTitle: "Ride Bangla নিয়ে সাহায্য দরকার?",
+    supportBody:
+      "ফুড ডেলিভারি, কুরিয়ার, পার্টনারশিপ, রাইডার, পার্টনার, সাপোর্ট বা বিজনেস যোগাযোগের জন্য শুধুমাত্র আমাদের অফিসিয়াল চ্যানেলের মাধ্যমে যোগাযোগ করুন।",
+    emailSupport: "ইমেইল সাপোর্ট",
+    whatsappButton: "WhatsApp",
+  },
+} as const;
+
 function ContactPage() {
+  const { language } = useLanguage();
+  const t = useMemo(() => copy[language], [language]);
   const [values, setValues] = useState<FormValues>(initialValues);
   const [formError, setFormError] = useState("");
   const businessEmail = "info@ridebangla.bd";
   const supportEmail = "support@ridebangla.bd";
-  const phone = "+8801309587749";
-  const whatsapp = "8801309587749";
+  const phone = OFFICIAL_CONTACT.phone;
+  const whatsapp = OFFICIAL_CONTACT.whatsapp;
   const address = "Faridpur, Bangladesh";
-  const addressLabel = "Faridpur, Bangladesh (Head Office) — Serving All 64 Districts of Bangladesh";
+  const addressLabel = t.addressLabel;
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
   const contacts = [
     {
-      title: "Official Website",
+      title: t.titleOfficialWebsite,
       value: "ridebangla.bd",
       href: "https://ridebangla.bd",
       icon: Globe,
-      type: "Open Website",
+      type: t.typeOpenWebsite,
     },
     {
-      title: "Official Email",
+      title: t.titleOfficialEmail,
       value: businessEmail,
       href: `mailto:${businessEmail}`,
       icon: Mail,
-      type: "Send Email",
+      type: t.typeSendEmail,
     },
     {
-      title: "Support Email",
+      title: t.titleSupportEmail,
       value: supportEmail,
       href: `mailto:${supportEmail}`,
       icon: Headphones,
-      type: "Get Support",
+      type: t.typeGetSupport,
     },
     {
-      title: "Phone",
+      title: t.titlePhone,
       value: phone,
       href: `tel:${phone.replace(/[^+0-9]/g, "")}`,
       icon: Phone,
-      type: "Call Now",
+      type: t.typeCallNow,
     },
     {
-      title: "WhatsApp",
+      title: t.titleWhatsApp,
       value: phone,
       href: `https://wa.me/${whatsapp}`,
       icon: MessageCircle,
-      type: "Chat on WhatsApp",
+      type: t.typeChatOnWhatsApp,
       highlight: true,
     },
     {
-      title: "Facebook",
+      title: t.titleFacebook,
       value: "facebook.com/ridebangla",
       href: "https://facebook.com/ridebangla",
       icon: Facebook,
-      type: "Follow Us",
+      type: t.typeFollowUs,
     },
     {
-      title: "Instagram",
+      title: t.titleInstagram,
       value: "instagram.com/ride.bangla_",
       href: "https://www.instagram.com/ride.bangla_",
       icon: Instagram,
-      type: "Follow Us",
+      type: t.typeFollowUs,
     },
     {
-      title: "YouTube",
+      title: t.titleYouTube,
       value: "youtube.com/@ridebangla-0",
       href: "https://www.youtube.com/@ridebangla-0",
       icon: Youtube,
-      type: "Subscribe",
+      type: t.typeSubscribe,
     },
     {
-      title: "Location",
+      title: t.titleTikTok,
+      value: "tiktok.com/@ridebangla0",
+      href: "https://www.tiktok.com/@ridebangla0",
+      icon: FaTiktok,
+      type: t.typeFollowUs,
+    },
+    {
+      title: t.titleXTwitter,
+      value: "x.com/enamulseddik",
+      href: "https://x.com/enamulseddik",
+      icon: FaXTwitter,
+      type: t.typeFollowCeo,
+    },
+    {
+      title: t.titleLocation,
       value: addressLabel,
       href: mapUrl,
       icon: MapPin,
-      type: "View Map",
+      type: t.typeViewMap,
     },
   ];
 
@@ -147,7 +316,7 @@ function ContactPage() {
       const cleanMessage = input.message.trim();
 
       if (!cleanName || !cleanEmail || !cleanMessage) {
-        throw new Error("Please fill in your name, email and message.");
+        throw new Error(t.errorRequired);
       }
 
       const finalSubject = `${input.department}: ${
@@ -171,7 +340,7 @@ function ContactPage() {
       setFormError(
         error instanceof Error
           ? error.message
-          : "Could not send message. Please try again."
+          : t.errorGeneric
       );
     },
   });
@@ -199,14 +368,13 @@ function ContactPage() {
             </div>
 
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-green-700">
-              Contact Ride Bangla
+              {t.heroEyebrow}
             </p>
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-950 sm:text-5xl">
-              We are here to help
+              {t.heroTitle}
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-gray-600 sm:text-lg">
-              Connect with Ride Bangla through our official website, email,
-              support, phone, WhatsApp and social media channels.
+              {t.heroBody}
             </p>
           </div>
         </section>
@@ -286,14 +454,13 @@ function ContactPage() {
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="rounded-[2rem] border border-green-100 bg-green-50 p-7 sm:p-8">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-green-700">
-                Send Message
+                {t.formEyebrow}
               </p>
               <h2 className="mt-3 text-3xl font-extrabold text-gray-950">
-                Contact our support team
+                {t.formTitle}
               </h2>
               <p className="mt-4 text-sm leading-7 text-gray-600 sm:text-base">
-                Fill out this form and your message will go directly to the Ride
-                Bangla admin support team.
+                {t.formBody}
               </p>
 
               <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
@@ -301,11 +468,10 @@ function ContactPage() {
                   <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-green-700" />
                   <div>
                     <p className="text-sm font-bold text-gray-950">
-                      Official response channels
+                      {t.channelsTitle}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-gray-600">
-                      Support team can review your message from the admin panel
-                      and contact you by email, phone or WhatsApp.
+                      {t.channelsBody}
                     </p>
                   </div>
                 </div>
@@ -316,12 +482,10 @@ function ContactPage() {
                   <Clock className="mt-0.5 h-5 w-5 shrink-0 text-green-700" />
                   <div>
                     <p className="text-sm font-bold text-gray-950">
-                      Support routing
+                      {t.routingTitle}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-gray-600">
-                      Messages are routed to the appropriate Ride Bangla support,
-                      operations, partnership or technical team based on the
-                      selected department and subject.
+                      {t.routingBody}
                     </p>
                   </div>
                 </div>
@@ -332,7 +496,7 @@ function ContactPage() {
                 className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-green-200 bg-white px-5 py-3 text-sm font-bold text-green-700 shadow-sm transition hover:bg-green-700 hover:text-white"
               >
                 <Headphones className="h-5 w-5" />
-                Browse Help Center
+                {t.browseHelp}
               </Link>
             </div>
 
@@ -341,21 +505,21 @@ function ContactPage() {
               className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm sm:p-8"
             >
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Full Name" required>
+                <Field label={t.labelName} required>
                   <input
                     value={values.name}
                     onChange={(event) => updateValue("name", event.target.value)}
-                    placeholder="Your full name"
+                    placeholder={t.phName}
                     className={inputClass}
                     maxLength={120}
                   />
                 </Field>
 
-                <Field label="Phone / WhatsApp">
+                <Field label={t.labelPhone}>
                   <input
                     value={values.phone}
                     onChange={(event) => updateValue("phone", event.target.value)}
-                    placeholder="+880 1XXX-XXXXXX"
+                    placeholder={t.phPhone}
                     className={inputClass}
                     maxLength={40}
                   />
@@ -363,18 +527,18 @@ function ContactPage() {
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Email" required>
+                <Field label={t.labelEmail} required>
                   <input
                     type="email"
                     value={values.email}
                     onChange={(event) => updateValue("email", event.target.value)}
-                    placeholder="you@example.com"
+                    placeholder={t.phEmail}
                     className={inputClass}
                     maxLength={255}
                   />
                 </Field>
 
-                <Field label="Department">
+                <Field label={t.labelDepartment}>
                   <select
                     value={values.department}
                     onChange={(event) =>
@@ -382,26 +546,26 @@ function ContactPage() {
                     }
                     className={inputClass}
                   >
-                    <option>General Support</option>
-                    <option>Food Delivery</option>
-                    <option>Courier Service</option>
-                    <option>Rider Support</option>
-                    <option>Partner Support</option>
-                    <option>Business Partnership</option>
-                    <option>Technical Issue</option>
-                    <option>Website / App Issue</option>
+                    <option value="General Support">{t.deptGeneral}</option>
+                    <option value="Food Delivery">{t.deptFood}</option>
+                    <option value="Courier Service">{t.deptCourier}</option>
+                    <option value="Rider Support">{t.deptRider}</option>
+                    <option value="Partner Support">{t.deptPartner}</option>
+                    <option value="Business Partnership">{t.deptBusiness}</option>
+                    <option value="Technical Issue">{t.deptTechnical}</option>
+                    <option value="Website / App Issue">{t.deptWebApp}</option>
                   </select>
                 </Field>
               </div>
 
               <div className="mt-4">
-                <Field label="Subject">
+                <Field label={t.labelSubject}>
                   <input
                     value={values.subject}
                     onChange={(event) =>
                       updateValue("subject", event.target.value)
                     }
-                    placeholder="How can we help?"
+                    placeholder={t.phSubject}
                     className={inputClass}
                     maxLength={200}
                   />
@@ -409,13 +573,13 @@ function ContactPage() {
               </div>
 
               <div className="mt-4">
-                <Field label="Message" required>
+                <Field label={t.labelMessage} required>
                   <textarea
                     value={values.message}
                     onChange={(event) =>
                       updateValue("message", event.target.value)
                     }
-                    placeholder="Write your message here..."
+                    placeholder={t.phMessage}
                     className={`${inputClass} min-h-36 resize-y`}
                     maxLength={4000}
                   />
@@ -432,8 +596,7 @@ function ContactPage() {
                 <div className="mt-4 flex items-start gap-3 rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
                   <span>
-                    Message sent successfully. Our support team will contact you
-                    as soon as possible.
+                    {t.successBody}
                   </span>
                 </div>
               )}
@@ -449,7 +612,7 @@ function ContactPage() {
                   ) : (
                     <Send className="h-5 w-5" />
                   )}
-                  {submitMessage.isPending ? "Sending..." : "Send Message"}
+                  {submitMessage.isPending ? t.submitSending : t.submitSend}
                 </button>
 
                 <Link
@@ -457,7 +620,7 @@ function ContactPage() {
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-4 text-sm font-bold text-gray-950 transition hover:border-green-200 hover:text-green-700 sm:w-auto"
                 >
                   <Headphones className="h-5 w-5" />
-                  Browse Help Center
+                  {t.browseHelp}
                 </Link>
               </div>
             </form>
@@ -469,15 +632,13 @@ function ContactPage() {
             <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.25em] text-green-400">
-                  Official Support
+                  {t.supportEyebrow}
                 </p>
                 <h2 className="mt-3 text-3xl font-extrabold">
-                  Need help with Ride Bangla?
+                  {t.supportTitle}
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
-                  For Food Delivery, Courier, partnership, rider, partner,
-                  support or business communication, please contact us through
-                  our official channels only.
+                  {t.supportBody}
                 </p>
               </div>
 
@@ -487,7 +648,7 @@ function ContactPage() {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-green-600 px-6 py-4 text-sm font-bold text-white transition hover:bg-green-700"
                 >
                   <Mail className="h-5 w-5" />
-                  Email Support
+                  {t.emailSupport}
                 </a>
 
                 <a
@@ -497,7 +658,7 @@ function ContactPage() {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-bold text-gray-950 transition hover:bg-gray-100"
                 >
                   <MessageCircle className="h-6 w-6" />
-                  WhatsApp
+                  {t.whatsappButton}
                 </a>
               </div>
             </div>
