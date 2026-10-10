@@ -3,7 +3,6 @@ import { formatDistanceToNow } from "date-fns";
 import { LogOut, Loader2, Star } from "lucide-react";
 import {
   getOwnReview,
-  handleRedirectResult,
   signInToReview,
   signOutOfReviews,
   submitReview,
@@ -159,7 +158,7 @@ function WriteReviewCard() {
     setSigningIn(true);
     try {
       // Redirects the whole page to Google (same flow as customer.ridebangla.bd).
-      // On return, handleRedirectResult() above + onAuthStateChanged restore the user.
+      // On return from Google, useReviewAuthUser() handles getRedirectResult() + onAuthStateChanged.
       await signInToReview();
     } catch (err) {
       const msg = err instanceof Error ? err.message : t.signInFail;
