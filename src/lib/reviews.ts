@@ -148,6 +148,39 @@ export function useReviews(maxItems = 24) {
   return { reviews, loading, count, average };
 }
 
+/**
+ * Key used to carry the real Firebase error code across the full-page
+ * reload that signInWithRedirect triggers. Without this, a failed sign-in
+ * (e.g. an unauthorized-domain error from Google/Firebase) was silently
+ * swallowed — the page just landed back on the homepage with no user and
+ * no explanation, which looked exactly like "it logs me out and the
+ * review never goes through."
+ */
+const REDIRECT_ERROR_KEY = "reviewAuthError";
+
+function rememberRedirectError(error: unknown) {
+  const code = error && typeof error === "object" && "code" in error ? String((error as { code: unknown }).code) : "unknown";
+  const message = error instanceof Error ? error.message : String(error);
+  console.error("[Reviews] Google sign-in redirect failed:", code, message);
+  try {
+    sessionStorage.setItem(REDIRECT_ERROR_KEY, JSON.stringify({ code, message }));
+  } catch {
+    // sessionStorage unavailable — the console.error above is the fallback.
+  }
+}
+
+/** Reads (and clears) the last redirect sign-in error, if any, so the UI can show it. */
+export function consumeRedirectError(): { code: string; message: string } | null {
+  try {
+    const raw = sessionStorage.getItem(REDIRECT_ERROR_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(REDIRECT_ERROR_KEY);
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 /** Tracks the signed-in reviewer, if any. One real Google account = one review. */
 // Module-level shared promise: getRedirectResult() must run once per page load,
 // even if no review component is mounted (e.g. user returns from Google
@@ -158,7 +191,10 @@ export function ensureRedirectHandled(): Promise<import("firebase/auth").UserCre
   if (!redirectPromise) {
     redirectPromise =
       firebaseAuth && typeof window !== "undefined"
-        ? getRedirectResult(firebaseAuth).catch(() => null)
+        ? getRedirectResult(firebaseAuth).catch((error) => {
+            rememberRedirectError(error);
+            return null;
+          })
         : Promise.resolve(null);
   }
   return redirectPromise;
@@ -207,17 +243,6 @@ export async function signInToReview(): Promise<void> {
   // The page goes to Google and comes back; getRedirectResult() below
   // picks up the signed-in user on return.
   await signInWithRedirect(firebaseAuth, googleAuthProvider);
-}
-
-/** Call on page load: returns the user if they just came back from Google sign-in. */
-export async function handleRedirectResult(): Promise<User | null> {
-  if (!firebaseAuth) return null;
-  try {
-    const result = await getRedirectResult(firebaseAuth);
-    return result ? result.user : null;
-  } catch {
-    return null;
-  }
 }
 
 export async function signOutOfReviews(): Promise<void> {
