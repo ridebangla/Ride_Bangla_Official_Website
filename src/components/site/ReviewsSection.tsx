@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { LogOut, Loader2, Star } from "lucide-react";
 import {
+  ensureRedirectHandled,
   getOwnReview,
   signInToReview,
   signOutOfReviews,
@@ -325,6 +326,13 @@ function WriteReviewCard() {
 
 export function ReviewsSection() {
   const { language } = useLanguage();
+  // CRITICAL: Handle Google redirect on EVERY page load, even when the
+  // review form is closed. After signInWithRedirect the page reloads with
+  // showForm=false, so WriteReviewCard (and its hook) never mounts to
+  // consume the redirect result. This ensures it's never lost.
+  useEffect(() => {
+    ensureRedirectHandled();
+  }, []);
   const t = useMemo(() => copy[language], [language]);
   const { reviews, loading, count, average } = useReviews(12);
   const [showForm, setShowForm] = useState(false);
