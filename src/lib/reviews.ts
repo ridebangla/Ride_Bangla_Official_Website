@@ -149,15 +149,19 @@ export function useReviews(maxItems = 24) {
 }
 
 /** Tracks the signed-in reviewer, if any. One real Google account = one review. */
-// Module-level flag: getRedirectResult() must run once per page load,
+// Module-level shared promise: getRedirectResult() must run once per page load,
 // even if no review component is mounted (e.g. user returns from Google
-// to the homepage with the review form closed).
-let redirectHandled = false;
+// to the homepage with the review form closed). All callers share this promise.
+let redirectPromise: Promise<import("firebase/auth").UserCredential | null> | null = null;
 
-export function ensureRedirectHandled(): void {
-  if (redirectHandled || !firebaseAuth || typeof window === "undefined") return;
-  redirectHandled = true;
-  getRedirectResult(firebaseAuth).catch(() => {});
+export function ensureRedirectHandled(): Promise<import("firebase/auth").UserCredential | null> {
+  if (!redirectPromise) {
+    redirectPromise =
+      firebaseAuth && typeof window !== "undefined"
+        ? getRedirectResult(firebaseAuth).catch(() => null)
+        : Promise.resolve(null);
+  }
+  return redirectPromise;
 }
 
 export function useReviewAuthUser() {
@@ -170,10 +174,8 @@ export function useReviewAuthUser() {
       return;
     }
     let cancelled = false;
-    // Consume redirect result once per page load (shared guard).
-    // Then also fetch it here to get the user for immediate state update.
-    ensureRedirectHandled();
-    getRedirectResult(firebaseAuth)
+    // Use the shared redirect promise (single getRedirectResult per page load).
+    ensureRedirectHandled()
       .then((result) => {
         if (!cancelled && result?.user) {
           setUser(result.user);
