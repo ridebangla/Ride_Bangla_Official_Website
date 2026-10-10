@@ -170,8 +170,9 @@ export function useReviewAuthUser() {
       return;
     }
     let cancelled = false;
-    // Handle Google redirect sign-in return: getRedirectResult() completes
-    // the sign-in and gives us the user. Its result must be USED, not discarded.
+    // Consume redirect result once per page load (shared guard).
+    // Then also fetch it here to get the user for immediate state update.
+    ensureRedirectHandled();
     getRedirectResult(firebaseAuth)
       .then((result) => {
         if (!cancelled && result?.user) {
