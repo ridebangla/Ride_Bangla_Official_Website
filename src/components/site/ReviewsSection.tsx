@@ -333,9 +333,23 @@ export function ReviewsSection() {
   useEffect(() => {
     ensureRedirectHandled();
   }, []);
+
+  // Auto-open the review form when returning from Google with a pending review.
+  // The WriteReviewCard's own effect will then auto-submit it.
+  const { user: sectionUser } = useReviewAuthUser();
+  const [showForm, setShowForm] = useState(false);
+  useEffect(() => {
+    if (!sectionUser) return;
+    try {
+      if (sessionStorage.getItem("pendingReview")) {
+        setShowForm(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, [sectionUser]);
   const t = useMemo(() => copy[language], [language]);
   const { reviews, loading, count, average } = useReviews(12);
-  const [showForm, setShowForm] = useState(false);
   const roundedAverage = useMemo(() => Math.round(average * 10) / 10, [average]);
 
   useEffect(() => {
