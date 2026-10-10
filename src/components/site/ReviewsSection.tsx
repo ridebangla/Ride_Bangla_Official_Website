@@ -132,9 +132,6 @@ function WriteReviewCard() {
   const t = useMemo(() => copy[language], [language]);
   const { user, ready } = useReviewAuthUser();
   // After Google redirect sign-in, the page reloads — pick up the result.
-  useEffect(() => {
-    handleRedirectResult().catch(() => {});
-  }, []);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
