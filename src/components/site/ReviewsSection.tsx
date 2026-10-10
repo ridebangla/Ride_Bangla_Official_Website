@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { LogOut, Loader2, Star } from "lucide-react";
 import {
+  consumeRedirectError,
   ensureRedirectHandled,
   getOwnReview,
   signInToReview,
@@ -158,6 +159,21 @@ function WriteReviewCard() {
       .finally(() => setLoadingExisting(false));
   }, [user]);
 
+  // After Google redirect: surface the real failure reason, if any, instead
+  // of silently landing back here with no explanation.
+  useEffect(() => {
+    if (!ready) return;
+    const redirectError = consumeRedirectError();
+    if (redirectError) {
+      setError(
+        redirectError.code === "auth/unauthorized-domain"
+          ? `${t.signInFail} (${redirectError.code}: this domain is not yet authorized for Google sign-in in the Firebase console.)`
+          : `${t.signInFail} (${redirectError.code})`,
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+
   // After Google redirect: auto-submit pending review saved in sessionStorage
   useEffect(() => {
     if (!ready || !user) return;
@@ -225,7 +241,7 @@ function WriteReviewCard() {
 
   if (!ready) {
     return (
-      <div className="grid h-full min-h-[220px] place-items-center rounded-2xl border border-dashed border-sla">
+      <div className="grid h-full min-h-[220px] place-items-center rounded-2xl border border-dashed border-slate-200">
         <Loader2 className="h-5 w-5 animate-spin text-slate-300" />
       </div>
     );
@@ -249,7 +265,7 @@ function WriteReviewCard() {
             type="button"
             onClick={() => signOutOfReviews()}
             aria-label={t.signOut}
-            className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white hover"
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white"
           >
             <LogOut className="h-3.5 w-3.5" />
           </button>
@@ -313,7 +329,7 @@ function WriteReviewCard() {
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-4 py-2."
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-4 py-2"
           >
             {submitting || signingIn ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             {user ? t.postReview : t.submitAndSignIn}
@@ -334,20 +350,22 @@ export function ReviewsSection() {
     ensureRedirectHandled();
   }, []);
 
-  // Auto-open the review form when returning from Google with a pending review.
-  // The WriteReviewCard's own effect will then auto-submit it.
-  const { user: sectionUser } = useReviewAuthUser();
+  // Auto-open the review form when returning from Google — either with a
+  // pending review to auto-submit (WriteReviewCard handles that), or with a
+  // failed sign-in whose error we need to show instead of hiding it inside
+  // a closed form the person has to know to reopen.
+  const { user: sectionUser, ready: sectionReady } = useReviewAuthUser();
   const [showForm, setShowForm] = useState(false);
   useEffect(() => {
-    if (!sectionUser) return;
+    if (!sectionReady) return;
     try {
-      if (sessionStorage.getItem("pendingReview")) {
+      if (sessionStorage.getItem("pendingReview") || sessionStorage.getItem("reviewAuthError")) {
         setShowForm(true);
       }
     } catch {
       // ignore
     }
-  }, [sectionUser]);
+  }, [sectionReady, sectionUser]);
   const t = useMemo(() => copy[language], [language]);
   const { reviews, loading, count, average } = useReviews(12);
   const roundedAverage = useMemo(() => Math.round(average * 10) / 10, [average]);
@@ -409,7 +427,7 @@ export function ReviewsSection() {
             {Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-36 animate-pulse rounded-xl bg-slate-50" />)}
           </div>
         ) : reviews.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center">
+          <div className="rounded-xl border border-dashed border-slate-200te-200 bg-slate-50 px-5 py-8 text-center">
             <p className="text-xs text-slate-500">{t.noReviews}</p>
           </div>
         ) : (
