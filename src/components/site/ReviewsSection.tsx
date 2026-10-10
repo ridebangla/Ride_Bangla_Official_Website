@@ -130,7 +130,6 @@ function WriteReviewCard() {
   const { language } = useLanguage();
   const t = useMemo(() => copy[language], [language]);
   const { user, ready } = useReviewAuthUser();
-  // After Google redirect sign-in, the page reloads — pick up the result.
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -140,6 +139,7 @@ function WriteReviewCard() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Load existing review if user is signed in
   useEffect(() => {
     if (!user) return;
     setLoadingExisting(true);
@@ -153,12 +153,36 @@ function WriteReviewCard() {
       .finally(() => setLoadingExisting(false));
   }, [user]);
 
+  // After Google redirect: auto-submit pending review saved in sessionStorage
+  useEffect(() => {
+    if (!ready || !user) return;
+    try {
+      const pending = sessionStorage.getItem("pendingReview");
+      if (!pending) return;
+      const { rating: pr, comment: pc } = JSON.parse(pending);
+      if (pr >= 1 && pr <= 5 && typeof pc === "string" && pc.trim().length >= 2) {
+        sessionStorage.removeItem("pendingReview");
+        setRating(pr);
+        setComment(pc);
+        setSubmitting(true);
+        setError(null);
+        submitReview(user, pr, pc.trim())
+          .then(() => setSuccess(true))
+          .catch((e) => setError(e instanceof Error ? e.message : t.submitFail))
+          .finally(() => setSubmitting(false));
+      } else {
+        sessionStorage.removeItem("pendingReview");
+      }
+    } catch {
+      sessionStorage.removeItem("pendingReview");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, user]);
+
   const handleSignIn = async () => {
     setError(null);
     setSigningIn(true);
     try {
-      // Redirects the whole page to Google (same flow as customer.ridebangla.bd).
-      // On return from Google, useReviewAuthUser() handles getRedirectResult() + onAuthStateChanged.
       await signInToReview();
     } catch (err) {
       const msg = err instanceof Error ? err.message : t.signInFail;
@@ -169,69 +193,63 @@ function WriteReviewCard() {
   };
 
   const handleSubmit = async () => {
-    if (!user) return;
+    if (rating === 0 || comment.trim().length < 2) return;
     setError(null);
-    setSubmitting(true);
-    try {
-      await submitReview(user, rating, comment);
-      setSuccess(true);
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : t.submitFail);
-    } finally {
-      setSubmitting(false);
+    if (user) {
+      // Already signed in — submit directly.
+      setSubmitting(true);
+      try {
+        await submitReview(user, rating, comment);
+        setSuccess(true);
+      } catch (submitError) {
+        setError(submitError instanceof Error ? submitError.message : t.submitFail);
+      } finally {
+        setSubmitting(false);
+      }
+    } else {
+      // Not signed in — save review, then ask for Google sign-in.
+      // After redirect back, the pending review auto-submits.
+      try {
+        sessionStorage.setItem("pendingReview", JSON.stringify({ rating, comment: comment.trim() }));
+      } catch {
+        // sessionStorage unavailable — proceed with sign-in anyway
+      }
+      await handleSignIn();
     }
   };
 
   if (!ready) {
     return (
-      <div className="grid h-full min-h-[220px] place-items-center rounded-2xl border border-dashed border-slate-200 bg-white/60 p-5">
+      <div className="grid h-full min-h-[220px] place-items-center rounded-2xl border border-dashed border-sla">
         <Loader2 className="h-5 w-5 animate-spin text-slate-300" />
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex h-full flex-col justify-center rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/40 p-5 text-center">
-        <p className="text-sm font-black text-slate-900">{t.shareExperience}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">
-          {t.signInBody}
-        </p>
-        <button
-          type="button"
-          onClick={handleSignIn}
-          disabled={signingIn}
-          className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-[#06291f] px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-brand-green disabled:opacity-60"
-        >
-          {signingIn ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-          {t.signInWithGoogle}
-        </button>
-        {error && <p className="mt-2 text-[11px] font-semibold text-red-600">{error}</p>}
-      </div>
-    );
-  }
-
   const displayRating = hoverRating || rating;
+  const canSubmit = rating >= 1 && rating <= 5 && comment.trim().length >= 2 && !submitting && !signingIn;
 
   return (
     <div className="flex h-full flex-col rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Avatar name={user.displayName || "You"} photoUrl={user.photoURL} />
-          <div>
-            <p className="text-xs font-bold text-slate-900">{user.displayName}</p>
-            <p className="text-[10px] text-slate-500">{t.signedInWith}</p>
+      {user && (
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Avatar name={user.displayName || "You"} photoUrl={user.photoURL} />
+            <div>
+              <p className="text-xs font-bold text-slate-900">{user.displayName}</p>
+              <p className="text-[10px] text-slate-500">{t.signedInWith}</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => signOutOfReviews()}
+            aria-label={t.signOut}
+            className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white hover"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => signOutOfReviews()}
-          aria-label={t.signOut}
-          className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-600"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-        </button>
-      </div>
+      )}
 
       {success ? (
         <div className="flex flex-1 flex-col items-center justify-center text-center">
@@ -277,20 +295,23 @@ function WriteReviewCard() {
             onChange={(event) => setComment(event.target.value.slice(0, 600))}
             placeholder={t.reviewPlaceholder}
             rows={3}
-            className="w-full flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs leading-5 text-slate-700 outline-none focus:border-brand-green"
+            className="w-full flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs"
           />
           <div className="mt-1 flex items-center justify-between">
             <span className="text-[10px] text-slate-400">{comment.length}/600</span>
           </div>
+          {!user && (
+            <p className="mt-1 text-[10px] leading-4 text-slate-500">{t.signInOnSubmit}</p>
+          )}
           {error && <p className="mt-1 text-[11px] font-semibold text-red-600">{error}</p>}
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={submitting || rating === 0 || comment.trim().length < 2}
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-brand-green-dark disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!canSubmit}
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-4 py-2."
           >
-            {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-            {t.postReview}
+            {submitting || signingIn ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+            {user ? t.postReview : t.submitAndSignIn}
           </button>
         </>
       )}
