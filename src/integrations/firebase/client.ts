@@ -42,16 +42,18 @@ const app = isFirebaseConfigured
 
 export const firebaseApp = app;
 export const firebaseDb = app ? getFirestore(app) : null;
-if (app && typeof window !== "undefined" && import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY) {
-  try {
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY),
-      isTokenAutoRefreshEnabled: true,
-    });
-  } catch (error) {
-    console.warn("Firebase App Check could not be initialized.", error);
-  }
-}
+// TEMPORARILY DISABLED to diagnose auth/internal-error in Google redirect flow.
+// If auth works without App Check, the reCAPTCHA site key or enforcement is the culprit.
+// if (app && typeof window !== "undefined" && import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY) {
+//   try {
+//     initializeAppCheck(app, {
+//       provider: new ReCaptchaV3Provider(import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY),
+//       isTokenAutoRefreshEnabled: true,
+//     });
+//   } catch (error) {
+//     console.warn("Firebase App Check could not be initialized.", error);
+//   }
+// }
 
 export const firebaseStorage = app ? getStorage(app) : null;
 
