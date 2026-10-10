@@ -158,10 +158,30 @@ export function useReviewAuthUser() {
       setReady(true);
       return;
     }
-    return onAuthStateChanged(firebaseAuth, (nextUser) => {
-      setUser(nextUser);
-      setReady(true);
+    let cancelled = false;
+    // Handle Google redirect sign-in return: getRedirectResult() completes
+    // the sign-in and gives us the user. Its result must be USED, not discarded.
+    getRedirectResult(firebaseAuth)
+      .then((result) => {
+        if (!cancelled && result?.user) {
+          setUser(result.user);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setReady(true);
+      });
+    // Also listen for auth state changes (covers session restore + sign-out).
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (nextUser) => {
+      if (!cancelled) {
+        setUser(nextUser);
+        setReady(true);
+      }
     });
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   return { user, ready };
