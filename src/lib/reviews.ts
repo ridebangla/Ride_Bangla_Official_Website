@@ -149,6 +149,17 @@ export function useReviews(maxItems = 24) {
 }
 
 /** Tracks the signed-in reviewer, if any. One real Google account = one review. */
+// Module-level flag: getRedirectResult() must run once per page load,
+// even if no review component is mounted (e.g. user returns from Google
+// to the homepage with the review form closed).
+let redirectHandled = false;
+
+export function ensureRedirectHandled(): void {
+  if (redirectHandled || !firebaseAuth || typeof window === "undefined") return;
+  redirectHandled = true;
+  getRedirectResult(firebaseAuth).catch(() => {});
+}
+
 export function useReviewAuthUser() {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
